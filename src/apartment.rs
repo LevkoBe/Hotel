@@ -2,14 +2,14 @@ use crate::resident::Resident;
 use std::sync::Arc;
 
 pub struct Apartment {
-    number: usize,
-    floor: usize,
-    resident: Option<Arc<Resident>>,
+    pub number: usize,
+    pub floor: usize,
+    pub resident: Option<Arc<Resident>>,
 }
 
 impl Apartment {
-    pub fn new(number: usize, floor: usize) -> Self {
-        Self {
+    pub fn new(number: usize, floor: usize) -> Apartment {
+        Apartment {
             number,
             floor,
             resident: None,
@@ -18,5 +18,9 @@ impl Apartment {
 
     pub fn assign_resident(&mut self, resident: Arc<Resident>) {
         self.resident = Some(resident);
+    }
+
+    pub fn is_available(&self) -> bool {
+        self.resident.is_none()
     }
 }
