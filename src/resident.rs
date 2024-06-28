@@ -1,7 +1,14 @@
 use rand::Rng;
 use std::sync::Arc;
 
-use crate::{document::Document, roles::{roles::Role, strategies::ResidentStrategy, AvengerStrategy, DoctorStrategy, JanitorStrategy, JudgeStrategy, KillerStrategy, OldWomanStrategy, PolicemanStrategy, ProfessorStrategy, SwindlerStrategy}};
+use crate::{
+    document::Document,
+    roles::{
+        roles::Role, strategies::ResidentStrategy, AvengerStrategy, DoctorStrategy,
+        JanitorStrategy, JudgeStrategy, KillerStrategy, OldWomanStrategy, PolicemanStrategy,
+        ProfessorStrategy, SwindlerStrategy,
+    },
+};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Status {

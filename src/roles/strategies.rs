@@ -1,4 +1,3 @@
-
 pub trait ResidentStrategy: Send + Sync {
     fn perform_action(&self);
 }

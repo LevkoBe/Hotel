@@ -2,7 +2,6 @@ use crate::hotel;
 
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
 
-
 pub enum ManagerState {
     SetUpHotel(Box<dyn ManagerStateBehavior>),
     SettleResidents(Box<dyn ManagerStateBehavior>),

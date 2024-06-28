@@ -1,7 +1,7 @@
+use crate::hotel;
 use crate::manager_states::handling_result::HandlingResult;
 use crate::manager_states::manager_state::ManagerState;
 use crate::manager_states::{GameState, PlayingState, SetUpHotelState, SettleResidentsState};
-use crate::hotel;
 
 pub struct Manager {
     state: ManagerState,
@@ -61,7 +61,7 @@ impl Manager {
             },
             HandlingResult::Restart => {
                 self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
-            },
+            }
         }
     }
 }

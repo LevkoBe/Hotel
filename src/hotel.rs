@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use std::sync::Arc;
 use strum::IntoEnumIterator;
 
 use crate::{apartment::Apartment, resident::Resident, roles::roles::Role};
@@ -49,7 +49,7 @@ impl Hotel {
         }
         let mut rng = thread_rng();
         available_roles.shuffle(&mut rng);
-        
+
         Self {
             id,
             num_rooms,

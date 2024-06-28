@@ -7,9 +7,11 @@ pub struct PlayingState;
 impl ManagerStateBehavior for PlayingState {
     fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
         match hotel {
-                Some(x) => x,
-                None => (|| { panic!("Hotel is not set up. Cannot finish setting up the game state."); })(),
-            }
+            Some(x) => x,
+            None => (|| {
+                panic!("Hotel is not set up. Cannot finish setting up the game state.");
+            })(),
+        }
     }
     fn handle_command(&mut self, _: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
         match input[0] {
@@ -38,6 +40,8 @@ impl ManagerStateBehavior for PlayingState {
                 println!("move -- depends on the strategy of the player");
                 println!("cheat -- allows to do something unallowed");
                 println!("pause -- changes state back to 'game'");
+                println!("restart -- restarts the current game");
+                println!("new game -- starts a new game");
             }
             _ => println!("Invalid command"),
         }

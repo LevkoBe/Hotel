@@ -1,8 +1,8 @@
 pub mod handling_result;
 pub mod manager_state_behavior;
 
-pub mod manager_state;
 pub mod game_state;
+pub mod manager_state;
 pub mod playing_state;
 pub mod settle_residents_state;
 pub mod setup_hotel_state;
