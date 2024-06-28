@@ -19,9 +19,8 @@ fn run() {
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
         let input: Vec<&str> = input.trim().split_whitespace().collect();
-        if input.is_empty() {
-            continue;
-        }
+        if input.is_empty() { continue; }
+        if input[0] == "quit" || input[0] == "exit" { break; }
         manager.handle_command(&input);
     }
 }

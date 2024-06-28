@@ -1,5 +1,4 @@
 use crate::hotel;
-use crate::manager::{Manager, ManagerState};
 
 use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;

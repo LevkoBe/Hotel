@@ -25,6 +25,14 @@ impl ManagerStateBehavior for PlayingState {
                 println!("Game paused");
                 return HandlingResult::ChangeState;
             }
+            "restart" => {
+                println!("Game restarted");
+                return HandlingResult::ResetState;
+            }
+            "new" if input.len() > 1 && input[1] == "game" => {
+                println!("New game started");
+                return HandlingResult::Restart;
+            }
             "help" => {
                 println!("Available commands:");
                 println!("move -- depends on the strategy of the player");

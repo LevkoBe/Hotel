@@ -5,3 +5,6 @@ help
 add resident [name] [age] [account balance] [apartment]
 add resident George 123 5000 13
 available
+get room 13
+residents settled
+help

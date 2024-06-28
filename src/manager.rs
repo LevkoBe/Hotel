@@ -1,27 +1,7 @@
 use crate::manager_states::handling_result::HandlingResult;
-use crate::manager_states::manager_state_behavior::ManagerStateBehavior;
-use crate::manager_states::{GameState, SetUpHotelState, SettleResidentsState};
-use crate::{hotel, resident::ResidentFactory};
-
-pub enum ManagerState {
-    SetUpHotel(Box<dyn ManagerStateBehavior>),
-    SettleResidents(Box<dyn ManagerStateBehavior>),
-    Game(Box<dyn ManagerStateBehavior>),
-}
-
-impl ManagerState {
-    fn handle_command(
-        &mut self,
-        hotel: &mut Option<hotel::Hotel>,
-        input: &[&str],
-    ) -> HandlingResult {
-        match self {
-            ManagerState::SetUpHotel(state) => state.handle_command(hotel, input),
-            ManagerState::SettleResidents(state) => state.handle_command(hotel, input),
-            ManagerState::Game(state) => state.handle_command(hotel, input),
-        }
-    }
-}
+use crate::manager_states::manager_state::ManagerState;
+use crate::manager_states::{GameState, PlayingState, SetUpHotelState, SettleResidentsState};
+use crate::hotel;
 
 pub struct Manager {
     state: ManagerState,
@@ -60,6 +40,9 @@ impl Manager {
                 ManagerState::Game(_) => {
                     self.state = ManagerState::Game(Box::new(GameState));
                 }
+                ManagerState::Playing(_) => {
+                    self.state = ManagerState::Game(Box::new(PlayingState));
+                }
             },
             HandlingResult::ChangeState => match self.state {
                 ManagerState::SetUpHotel(_) => {
@@ -70,8 +53,14 @@ impl Manager {
                     self.state = ManagerState::Game(Box::new(GameState));
                 }
                 ManagerState::Game(_) => {
-                    self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
+                    self.state = ManagerState::SetUpHotel(Box::new(PlayingState));
                 }
+                ManagerState::Playing(_) => {
+                    self.state = ManagerState::SetUpHotel(Box::new(GameState));
+                }
+            },
+            HandlingResult::Restart => {
+                self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
             },
         }
     }
