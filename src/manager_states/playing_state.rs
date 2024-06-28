@@ -8,7 +8,11 @@ impl ManagerStateBehavior for PlayingState {
     fn finish_setting(&self) -> hotel::Hotel {
         todo!()
     }
-    fn handle_command (&mut self, _: &mut Option<game_flow::GameFlow>, input: &[&str]) -> HandlingResult {
+    fn handle_command(
+        &mut self,
+        _: &mut Option<game_flow::GameFlow>,
+        input: &[&str],
+    ) -> HandlingResult {
         match input[0] {
             "move" => {
                 // Implement move logic based on player's strategy

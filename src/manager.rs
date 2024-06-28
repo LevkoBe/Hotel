@@ -1,6 +1,9 @@
 use crate::{
     game_flow::GameFlow,
-    manager_states::{handling_result::HandlingResult, manager_state::ManagerState, GameState, PlayingState, SettleResidentsState, SetUpHotelState},
+    manager_states::{
+        handling_result::HandlingResult, manager_state::ManagerState, GameState, PlayingState,
+        SetUpHotelState, SettleResidentsState,
+    },
 };
 
 pub struct Manager {

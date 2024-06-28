@@ -53,7 +53,7 @@ impl ManagerStateBehavior for SettleResidentsState {
         todo!()
     }
 
-    fn handle_command (
+    fn handle_command(
         &mut self,
         game_flow: &mut Option<game_flow::GameFlow>,
         input: &[&str],
@@ -65,7 +65,13 @@ impl ManagerStateBehavior for SettleResidentsState {
                     let age: usize = input[3].parse().unwrap_or(0);
                     let account_balance: f64 = input[4].parse().unwrap_or(0.0);
                     let apartment_number: usize = input[5].parse().unwrap_or(0);
-                    self.add_resident(&mut game_flow.hotel, name, age, account_balance, Some(apartment_number));
+                    self.add_resident(
+                        &mut game_flow.hotel,
+                        name,
+                        age,
+                        account_balance,
+                        Some(apartment_number),
+                    );
                 } else {
                     println!("Hotel is not set up. Please set up the hotel first.");
                 }

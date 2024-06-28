@@ -8,8 +8,8 @@ impl ManagerStateBehavior for GameState {
     fn finish_setting(&self) -> hotel::Hotel {
         todo!()
     }
-    
-    fn handle_command (
+
+    fn handle_command(
         &mut self,
         game_flow: &mut Option<game_flow::GameFlow>,
         input: &[&str],

@@ -57,7 +57,7 @@ impl ManagerStateBehavior for SetUpHotelState {
             self.service,
         )
     }
-    fn handle_command (
+    fn handle_command(
         &mut self,
         _: &mut Option<game_flow::GameFlow>,
         input: &[&str],
