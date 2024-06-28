@@ -1,7 +1,7 @@
 use rand::Rng;
 use std::sync::Arc;
 
-use crate::{document::Document, roles::Role};
+use crate::{document::Document, roles::{roles::Role, strategies::ResidentStrategy, AvengerStrategy, DoctorStrategy, JanitorStrategy, JudgeStrategy, KillerStrategy, OldWomanStrategy, PolicemanStrategy, ProfessorStrategy, SwindlerStrategy}};
 
 #[derive(Clone, Copy, Debug)]
 pub enum Status {
@@ -13,24 +13,6 @@ pub enum Status {
 pub enum ResidentType {
     Human,
     Bot,
-}
-
-pub trait ResidentStrategy: Send + Sync {
-    fn perform_action(&self);
-}
-
-pub struct KillerStrategy;
-impl ResidentStrategy for KillerStrategy {
-    fn perform_action(&self) {
-        println!("Killer is performing action");
-    }
-}
-
-pub struct PolicemanStrategy;
-impl ResidentStrategy for PolicemanStrategy {
-    fn perform_action(&self) {
-        println!("Policeman is performing action");
-    }
 }
 
 pub struct Resident {
@@ -89,6 +71,13 @@ impl ResidentFactory {
         let strategy: Arc<dyn ResidentStrategy> = match role {
             Role::Killer => Arc::new(KillerStrategy),
             Role::Policeman => Arc::new(PolicemanStrategy),
+            Role::Doctor => Arc::new(DoctorStrategy),
+            Role::Janitor => Arc::new(JanitorStrategy),
+            Role::OldWoman => Arc::new(OldWomanStrategy),
+            Role::Swindler => Arc::new(SwindlerStrategy),
+            Role::Avenger => Arc::new(AvengerStrategy),
+            Role::Judge => Arc::new(JudgeStrategy),
+            Role::Professor => Arc::new(ProfessorStrategy),
             _ => unimplemented!(),
         };
 

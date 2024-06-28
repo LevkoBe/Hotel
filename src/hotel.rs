@@ -3,7 +3,7 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use strum::IntoEnumIterator;
 
-use crate::{apartment::Apartment, resident::Resident, roles::Role};
+use crate::{apartment::Apartment, resident::Resident, roles::roles::Role};
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]

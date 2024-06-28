@@ -1,7 +1,7 @@
 use crate::manager_states::handling_result::HandlingResult;
 use crate::manager_states::manager_state_behavior::ManagerStateBehavior;
 use crate::manager_states::{GameState, SetUpHotelState, SettleResidentsState};
-use crate::{hotel, resident::ResidentFactory, roles::Role};
+use crate::{hotel, resident::ResidentFactory};
 
 pub enum ManagerState {
     SetUpHotel(Box<dyn ManagerStateBehavior>),

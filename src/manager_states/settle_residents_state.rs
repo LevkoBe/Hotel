@@ -1,5 +1,5 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::{hotel::{self, Hotel}, resident::ResidentFactory, roles::Role};
+use crate::{hotel, resident::ResidentFactory};
 
 #[derive(Clone)]
 pub struct SettleResidentsState;

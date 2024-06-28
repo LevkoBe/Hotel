@@ -6,9 +6,10 @@ pub struct PlayingState;
 
 impl ManagerStateBehavior for PlayingState {
     fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
-        hotel.unwrap_or_else(|| {
-            panic!("Hotel is not set up. Cannot finish setting up the game state.");
-        })
+        match hotel {
+                Some(x) => x,
+                None => (|| { panic!("Hotel is not set up. Cannot finish setting up the game state."); })(),
+            }
     }
     fn handle_command(&mut self, _: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
         match input[0] {
