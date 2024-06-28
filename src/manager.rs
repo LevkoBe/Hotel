@@ -1,37 +1,40 @@
-use crate::hotel;
-use crate::manager_states::handling_result::HandlingResult;
-use crate::manager_states::manager_state::ManagerState;
-use crate::manager_states::{GameState, PlayingState, SetUpHotelState, SettleResidentsState};
+use crate::{
+    game_flow::GameFlow,
+    manager_states::{handling_result::HandlingResult, manager_state::ManagerState, GameState, PlayingState, SettleResidentsState, SetUpHotelState},
+};
 
 pub struct Manager {
     state: ManagerState,
-    pub hotel: Option<hotel::Hotel>,
+    pub game_flow: Option<GameFlow>,
 }
 
 impl Manager {
     pub fn new() -> Self {
         Manager {
             state: ManagerState::SetUpHotel(Box::new(SetUpHotelState::new())),
-            hotel: None,
+            game_flow: Some(GameFlow::new()),
         }
     }
 
     pub fn save_hotel(&mut self) {
         match &self.state {
             ManagerState::SetUpHotel(state) => {
-                self.hotel = Some(state.finish_setting(self.hotel.clone()));
+                if let Some(game_flow) = &mut self.game_flow {
+                    game_flow.hotel = state.finish_setting();
+                }
             }
-            _ => {}
+            _ => {
+                panic!("Invalid state for saving hotel");
+            }
         }
     }
 
     pub(crate) fn handle_command(&mut self, input: &[&str]) {
-        let result = self.state.handle_command(&mut self.hotel, input);
+        let result = self.state.handle_command(&mut self.game_flow, input);
         match result {
             HandlingResult::KeepState => {}
             HandlingResult::ResetState => match self.state {
                 ManagerState::SetUpHotel(_) => {
-                    self.hotel = None;
                     self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
                 }
                 ManagerState::SettleResidents(_) => {
@@ -41,7 +44,7 @@ impl Manager {
                     self.state = ManagerState::Game(Box::new(GameState));
                 }
                 ManagerState::Playing(_) => {
-                    self.state = ManagerState::Game(Box::new(PlayingState));
+                    self.state = ManagerState::Playing(Box::new(PlayingState));
                 }
             },
             HandlingResult::ChangeState => match self.state {
@@ -53,10 +56,10 @@ impl Manager {
                     self.state = ManagerState::Game(Box::new(GameState));
                 }
                 ManagerState::Game(_) => {
-                    self.state = ManagerState::SetUpHotel(Box::new(PlayingState));
+                    self.state = ManagerState::Playing(Box::new(PlayingState));
                 }
                 ManagerState::Playing(_) => {
-                    self.state = ManagerState::SetUpHotel(Box::new(GameState));
+                    self.state = ManagerState::Game(Box::new(GameState));
                 }
             },
             HandlingResult::Restart => {

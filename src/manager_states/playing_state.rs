@@ -1,19 +1,14 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::hotel;
+use crate::{game_flow, hotel};
 
 #[derive(Clone)]
 pub struct PlayingState;
 
 impl ManagerStateBehavior for PlayingState {
-    fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
-        match hotel {
-            Some(x) => x,
-            None => (|| {
-                panic!("Hotel is not set up. Cannot finish setting up the game state.");
-            })(),
-        }
+    fn finish_setting(&self) -> hotel::Hotel {
+        todo!()
     }
-    fn handle_command(&mut self, _: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
+    fn handle_command (&mut self, _: &mut Option<game_flow::GameFlow>, input: &[&str]) -> HandlingResult {
         match input[0] {
             "move" => {
                 // Implement move logic based on player's strategy

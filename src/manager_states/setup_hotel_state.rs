@@ -1,4 +1,4 @@
-use crate::hotel;
+use crate::{game_flow, hotel};
 
 use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;
@@ -42,23 +42,10 @@ impl SetUpHotelState {
         println!("Entrance fee: {}", self.fee);
         println!("Daily service cost: {}", self.service);
     }
-
-    fn finish_setting(&self, hotel: &Option<hotel::Hotel>) -> hotel::Hotel {
-        hotel::Hotel::new(
-            self.id.clone(),
-            self.num_rooms,
-            self.capital,
-            hotel::BuildingType::Rectangular,
-            0,
-            self.rps,
-            self.fee,
-            self.service,
-        )
-    }
 }
 
 impl ManagerStateBehavior for SetUpHotelState {
-    fn finish_setting(&self, _: Option<hotel::Hotel>) -> hotel::Hotel {
+    fn finish_setting(&self) -> hotel::Hotel {
         hotel::Hotel::new(
             self.id.clone(),
             self.num_rooms,
@@ -70,9 +57,9 @@ impl ManagerStateBehavior for SetUpHotelState {
             self.service,
         )
     }
-    fn handle_command(
+    fn handle_command (
         &mut self,
-        hotel: &mut Option<hotel::Hotel>,
+        _: &mut Option<game_flow::GameFlow>,
         input: &[&str],
     ) -> HandlingResult {
         match input[0] {
@@ -116,16 +103,6 @@ impl ManagerStateBehavior for SetUpHotelState {
                 {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
-                    // hotel = &mut Some(hotel::Hotel::new( todo : move
-                    //     self.id.clone(),
-                    //     self.num_rooms,
-                    //     self.capital,
-                    //     hotel::BuildingType::Rectangular,
-                    //     0,
-                    //     self.rps,
-                    //     self.fee,
-                    //     self.service,
-                    // ));
                     println!("Hotel setup complete. Moving to resident settlement stage.");
                     return HandlingResult::ChangeState;
                 }

@@ -1,20 +1,17 @@
-use crate::hotel::Hotel;
-use crate::resident::Resident;
-use lazy_static::lazy_static;
-use std::sync::{Arc, Mutex};
+use crate::{hotel::Hotel, resident::Resident};
 
 pub struct GameFlow {
-    pub hotel: Arc<Hotel>,
+    pub hotel: Hotel,
     pub current_state: GameTime,
     pub days_passed: usize,
     pub current_moving_player: usize,
     pub flow_sequence: FlowSequence,
-    pub residents: Vec<Arc<Resident>>,
+    pub residents: Vec<Resident>,
 }
 
 impl GameFlow {
     pub fn new() -> Self {
-        let hotel = Arc::new(Hotel::new(
+        let hotel = Hotel::new(
             "Hotel1".to_string(),
             50,
             100000.0,
@@ -23,7 +20,7 @@ impl GameFlow {
             10,
             100.0,
             20.0,
-        ));
+        );
         Self {
             hotel,
             current_state: GameTime::Day,
@@ -34,7 +31,7 @@ impl GameFlow {
         }
     }
 
-    pub fn initialize(&mut self, residents: Vec<Arc<Resident>>) {
+    pub fn initialize(&mut self, residents: Vec<Resident>) {
         self.residents = residents;
     }
 
@@ -85,17 +82,4 @@ pub enum FlowSequence {
     Ordered,
     Random,
     Alphabetical,
-}
-
-// Singleton pattern for GameFlow
-lazy_static! {
-    pub static ref GAME_FLOW_SINGLETON: Mutex<GameFlow> = Mutex::new(GameFlow::new());
-}
-
-pub struct GameFlowSingleton;
-
-impl GameFlowSingleton {
-    pub fn get_instance() -> &'static Mutex<GameFlow> {
-        &GAME_FLOW_SINGLETON
-    }
 }

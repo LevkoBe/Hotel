@@ -1,21 +1,17 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::hotel;
+use crate::{game_flow, hotel};
 
 #[derive(Clone)]
 pub struct GameState;
 
 impl ManagerStateBehavior for GameState {
-    fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
-        match hotel {
-            Some(x) => x,
-            None => (|| {
-                panic!("Hotel is not set up. Cannot finish setting up the game state.");
-            })(),
-        }
+    fn finish_setting(&self) -> hotel::Hotel {
+        todo!()
     }
-    fn handle_command(
+    
+    fn handle_command (
         &mut self,
-        hotel: &mut Option<hotel::Hotel>,
+        game_flow: &mut Option<game_flow::GameFlow>,
         input: &[&str],
     ) -> HandlingResult {
         match input[0] {
@@ -31,9 +27,9 @@ impl ManagerStateBehavior for GameState {
                 return HandlingResult::ChangeState;
             }
             "save" => {
-                if let Some(ref hotel) = hotel {
+                if let Some(ref game_flow) = game_flow {
                     // todo: Implement save logic here
-                    println!("Game progress saved for hotel ID: {}", hotel.id);
+                    println!("Game progress saved for hotel ID: {}", game_flow.hotel.id);
                 } else {
                     println!("Hotel is not set up. Cannot save game progress.");
                 }

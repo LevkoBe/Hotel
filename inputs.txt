@@ -8,3 +8,5 @@ available
 get room 13
 residents settled
 help
+play
+move

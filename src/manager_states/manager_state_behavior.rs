@@ -1,11 +1,11 @@
 use super::handling_result::HandlingResult;
-use crate::hotel;
+use crate::{game_flow, hotel};
 
 pub trait ManagerStateBehavior {
-    fn handle_command(
+    fn handle_command (
         &mut self,
-        hotel: &mut Option<hotel::Hotel>,
+        game_flow: &mut Option<game_flow::GameFlow>,
         input: &[&str],
     ) -> HandlingResult;
-    fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel;
+    fn finish_setting(&self) -> hotel::Hotel;
 }

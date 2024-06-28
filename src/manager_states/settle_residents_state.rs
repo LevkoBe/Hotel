@@ -1,5 +1,5 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::{hotel, resident::ResidentFactory};
+use crate::{game_flow, hotel, resident::ResidentFactory};
 
 #[derive(Clone)]
 pub struct SettleResidentsState;
@@ -7,18 +7,17 @@ pub struct SettleResidentsState;
 impl SettleResidentsState {
     pub fn add_resident(
         &self,
-        hotel: &mut Option<hotel::Hotel>,
+        hotel: &mut hotel::Hotel,
         name: String,
         age: usize,
         account_balance: f64,
         apartment_number: Option<usize>,
     ) {
-        if hotel.as_ref().unwrap().available_rooms() == 0 {
+        if hotel.available_rooms() == 0 {
             println!("No rooms available");
             return;
         }
 
-        let hotel = hotel.as_mut().unwrap();
         if let Some(role) = hotel.random_available_role() {
             let resident = ResidentFactory::create_resident(name, age, account_balance, role);
             if let Some(apartment_number) = apartment_number {
@@ -36,57 +35,50 @@ impl SettleResidentsState {
         }
     }
 
-    pub fn settle_remaining_residents(&self, hotel: &mut Option<hotel::Hotel>) {
-        if let Some(ref mut hotel) = hotel {
-            while hotel.available_rooms() > 0 {
-                let bot = ResidentFactory::generate_random();
-                if let Some(next_available_room) = hotel.find_next_available_room() {
-                    hotel.add_resident(bot, next_available_room);
-                } else {
-                    break;
-                }
+    pub fn settle_remaining_residents(&self, hotel: &mut hotel::Hotel) {
+        while hotel.available_rooms() > 0 {
+            let bot = ResidentFactory::generate_random();
+            if let Some(next_available_room) = hotel.find_next_available_room() {
+                hotel.add_resident(bot, next_available_room);
+            } else {
+                break;
             }
-            println!("Remaining rooms settled with bots");
-        } else {
-            println!("Hotel is not set up. Please set up the hotel first.");
         }
+        println!("Remaining rooms settled with bots");
     }
 }
 
 impl ManagerStateBehavior for SettleResidentsState {
-    fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
-        hotel.unwrap_or_else(|| {
-            panic!("Hotel is not set up. Cannot finish setting up the game state.");
-            // todo
-        })
+    fn finish_setting(&self) -> hotel::Hotel {
+        todo!()
     }
 
-    fn handle_command(
+    fn handle_command (
         &mut self,
-        hotel: &mut Option<hotel::Hotel>,
+        game_flow: &mut Option<game_flow::GameFlow>,
         input: &[&str],
     ) -> HandlingResult {
         match input[0] {
             "add" if input.len() == 6 && input[1] == "resident" => {
-                if let Some(ref mut _hotel) = hotel {
+                if let Some(ref mut game_flow) = game_flow {
                     let name = input[2].to_string();
                     let age: usize = input[3].parse().unwrap_or(0);
                     let account_balance: f64 = input[4].parse().unwrap_or(0.0);
                     let apartment_number: usize = input[5].parse().unwrap_or(0);
-                    self.add_resident(hotel, name, age, account_balance, Some(apartment_number));
+                    self.add_resident(&mut game_flow.hotel, name, age, account_balance, Some(apartment_number));
                 } else {
                     println!("Hotel is not set up. Please set up the hotel first.");
                 }
             }
             "available" => {
-                if let Some(ref hotel) = hotel {
-                    println!("Available rooms: {}", hotel.available_rooms());
+                if let Some(ref game_flow) = game_flow {
+                    println!("Available rooms: {}", game_flow.hotel.available_rooms());
                 }
             }
             "get" if input.len() == 3 && input[1] == "room" => {
-                if let Some(ref hotel) = hotel {
+                if let Some(ref game_flow) = game_flow {
                     let apartment_number: usize = input[2].parse().unwrap_or(0);
-                    match hotel.get_room(apartment_number) {
+                    match game_flow.hotel.get_room(apartment_number) {
                         Some((number, floor)) => println!("Room {} on floor {}", number, floor),
                         None => println!("Apartment not found"),
                     }
@@ -95,8 +87,8 @@ impl ManagerStateBehavior for SettleResidentsState {
                 }
             }
             "residents" if input.len() == 2 && input[1] == "settled" => {
-                if let Some(_) = hotel {
-                    self.settle_remaining_residents(hotel);
+                if let Some(game_flow) = game_flow {
+                    self.settle_remaining_residents(&mut game_flow.hotel);
                     println!("Residents settled. Moving to game stage.");
                     return HandlingResult::ChangeState;
                 } else {
