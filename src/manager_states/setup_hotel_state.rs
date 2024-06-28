@@ -1,6 +1,7 @@
 use crate::manager::{Manager, ManagerState};
 use crate::hotel;
 
+use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
@@ -42,15 +43,39 @@ impl SetUpHotelState {
         println!("Entrance fee: {}", self.fee);
         println!("Daily service cost: {}", self.service);
     }
+
+    fn finish_setting(&self, hotel: &Option<hotel::Hotel>) -> hotel::Hotel {
+        hotel::Hotel::new(
+            self.id.clone(),
+            self.num_rooms,
+            self.capital,
+            hotel::BuildingType::Rectangular,
+            0,
+            self.rps,
+            self.fee,
+            self.service,
+        )
+    }
 }
 
 impl ManagerStateBehavior for SetUpHotelState {
-    fn handle_command(&mut self, manager: &mut Manager, input: &[&str]) {
+    fn finish_setting(&self, _: Option<hotel::Hotel>) -> hotel::Hotel {
+        hotel::Hotel::new(
+            self.id.clone(),
+            self.num_rooms,
+            self.capital,
+            hotel::BuildingType::Rectangular,
+            0,
+            self.rps,
+            self.fee,
+            self.service,
+        )
+    }
+    fn handle_command(&mut self, hotel: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
         match input[0] {
             "new" => {
-                manager.hotel = None;
-                *self = SetUpHotelState::new();
                 println!("Hotel reset with a new random ID.");
+                return HandlingResult::ResetState;
             }
             "id" if input.len() == 2 => {
                 self.id = input[1].to_string();
@@ -83,18 +108,18 @@ impl ManagerStateBehavior for SetUpHotelState {
                 if self.id.is_empty() || self.num_rooms == 0 || self.capital == 0.0 || self.fee == 0.0 || self.service == 0.0 {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
-                    manager.hotel = Some(hotel::Hotel::new(
-                        self.id.clone(),
-                        self.num_rooms,
-                        self.capital,
-                        hotel::BuildingType::Rectangular,
-                        0,
-                        self.rps,
-                        self.fee,
-                        self.service,
-                    ));
+                    // hotel = &mut Some(hotel::Hotel::new( todo : move
+                    //     self.id.clone(),
+                    //     self.num_rooms,
+                    //     self.capital,
+                    //     hotel::BuildingType::Rectangular,
+                    //     0,
+                    //     self.rps,
+                    //     self.fee,
+                    //     self.service,
+                    // ));
                     println!("Hotel setup complete. Moving to resident settlement stage.");
-                    manager.set_state(ManagerState::SettleResidents(Box::new(crate::manager_states::SettleResidentsState)));
+                    return HandlingResult::ChangeState;
                 }
             }
             "help" => {
@@ -110,5 +135,6 @@ impl ManagerStateBehavior for SetUpHotelState {
             }
             _ => println!("Invalid command"),
         }
+        HandlingResult::KeepState
     }
 }

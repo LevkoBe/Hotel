@@ -1,11 +1,16 @@
-use crate::manager::{Manager, ManagerState};
-use super::manager_state_behavior::ManagerStateBehavior;
+use crate::hotel;
+use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
 
 #[derive(Clone)]
 pub struct GameState;
 
 impl ManagerStateBehavior for GameState {
-    fn handle_command(&mut self, manager: &mut Manager, input: &[&str]) {
+    fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
+        hotel.unwrap_or_else(|| {
+            panic!("Hotel is not set up. Cannot finish setting up the game state.");
+        })
+    }
+    fn handle_command(&mut self, hotel: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
         match input[0] {
             "help" => {
                 println!("Available commands:");
@@ -14,10 +19,10 @@ impl ManagerStateBehavior for GameState {
             }
             "play" => {
                 println!("Game started");
-                manager.set_state(ManagerState::Game(Box::new(crate::manager_states::PlayingState)));
+                return HandlingResult::ChangeState;
             }
             "save" => {
-                if let Some(ref hotel) = manager.hotel {
+                if let Some(ref hotel) = hotel {
                     // todo: Implement save logic here
                     println!("Game progress saved for hotel ID: {}", hotel.id);
                 } else {
@@ -26,5 +31,6 @@ impl ManagerStateBehavior for GameState {
             }
             _ => println!("Invalid command"),
         }
+        HandlingResult::KeepState
     }
 }

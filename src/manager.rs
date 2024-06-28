@@ -1,3 +1,4 @@
+use crate::manager_states::handling_result::HandlingResult;
 use crate::manager_states::manager_state_behavior::ManagerStateBehavior;
 use crate::{hotel, resident::ResidentFactory, roles::Role};
 use crate::manager_states::{GameState, SetUpHotelState, SettleResidentsState};
@@ -9,11 +10,11 @@ pub enum ManagerState {
 }
 
 impl ManagerState {
-    fn handle_command(&mut self, manager: &mut Manager, input: &[&str]) {
+    fn handle_command(&mut self, hotel: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
         match self {
-            ManagerState::SetUpHotel(state) => state.handle_command(manager, input),
-            ManagerState::SettleResidents(state) => state.handle_command(manager, input),
-            ManagerState::Game(state) => state.handle_command(manager, input),
+            ManagerState::SetUpHotel(state) => state.handle_command(hotel, input),
+            ManagerState::SettleResidents(state) => state.handle_command(hotel, input),
+            ManagerState::Game(state) => state.handle_command(hotel, input),
         }
     }
 }
@@ -31,50 +32,47 @@ impl Manager {
         }
     }
 
-    pub fn set_state(&mut self, state: ManagerState) {
-        self.state = state;
+    pub fn save_hotel(&mut self) {
+        match &self.state {
+            ManagerState::SetUpHotel(state) => {
+                self.hotel = Some(state.finish_setting(self.hotel.clone()));
+            }
+            _ => {}
+        }
     }
 
     pub(crate) fn handle_command(&mut self, input: &[&str]) {
-        let mut state = match self.state {
-            ManagerState::SetUpHotel(_) => ManagerState::SetUpHotel(Box::new(SetUpHotelState::new())),
-            ManagerState::SettleResidents(_) => ManagerState::SettleResidents(Box::new(SettleResidentsState)),
-            ManagerState::Game(_) => ManagerState::Game(Box::new(GameState)),
-        };
-        state.handle_command(self, input);
-    }
-
-    pub fn add_resident(&mut self, name: String, age: usize, account_balance: f64, apartment_number: Option<usize>) {
-        if self.hotel.as_ref().unwrap().available_rooms() == 0 {
-            println!("No rooms available");
-            return;
-        }
-
-        let resident = ResidentFactory::create_resident(name, age, account_balance, Role::Newcomer);
-        if let Some(apartment_number) = apartment_number {
-            self.hotel.as_mut().unwrap().add_resident(resident, apartment_number);
-        } else {
-            if let Some(next_available_room) = self.hotel.as_mut().unwrap().find_next_available_room() {
-                self.hotel.as_mut().unwrap().add_resident(resident, next_available_room);
-            } else {
-                println!("No rooms available");
-            }
-        }
-    }
-
-    pub fn settle_remaining_residents(&mut self) {
-        if let Some(ref mut hotel) = self.hotel {
-            while hotel.available_rooms() > 0 {
-                let bot = ResidentFactory::generate_random();
-                if let Some(next_available_room) = hotel.find_next_available_room() {
-                    hotel.add_resident(bot, next_available_room);
-                } else {
-                    break;
+        let result = self.state.handle_command(&mut self.hotel, input);
+        match result {
+            HandlingResult::KeepState => {}
+            HandlingResult::ResetState => {
+                match self.state {
+                    ManagerState::SetUpHotel(_) => {
+                        self.hotel = None;
+                        self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
+                    }
+                    ManagerState::SettleResidents(_) => {
+                        self.state = ManagerState::SettleResidents(Box::new(SettleResidentsState));
+                    }
+                    ManagerState::Game(_) => {
+                        self.state = ManagerState::Game(Box::new(GameState));
+                    }
                 }
             }
-            println!("Remaining rooms settled with bots");
-        } else {
-            println!("Hotel is not set up. Please set up the hotel first.");
+            HandlingResult::ChangeState => {
+                match self.state {
+                    ManagerState::SetUpHotel(_) => {
+                        self.save_hotel();
+                        self.state = ManagerState::SettleResidents(Box::new(SettleResidentsState));
+                    }
+                    ManagerState::SettleResidents(_) => {
+                        self.state = ManagerState::Game(Box::new(GameState));
+                    }
+                    ManagerState::Game(_) => {
+                        self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
+                    }
+                }
+            }
         }
     }
 }

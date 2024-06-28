@@ -1,4 +1,5 @@
 pub mod manager_state_behavior;
+pub mod handling_result;
 
 pub mod setup_hotel_state;
 pub mod settle_residents_state;

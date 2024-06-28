@@ -1,6 +1,7 @@
 use crate::resident::Resident;
 use std::sync::Arc;
 
+#[derive(Clone)]
 pub struct Apartment {
     pub number: usize,
     pub floor: usize,

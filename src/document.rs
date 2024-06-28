@@ -3,13 +3,13 @@ pub struct Document {
     pub content: String,
 }
 
+#[allow(dead_code)] // todo: do not allow dead code
 impl Document {
     pub fn new(title: String, content: String) -> Document {
         Document { title, content }
     }
 }
 
-//implement display trait for Document
 use std::fmt;
 
 impl fmt::Display for Document {

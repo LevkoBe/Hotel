@@ -11,6 +11,7 @@ pub enum BuildingType {
     Custom,
 }
 
+#[derive(Clone)]
 pub struct Hotel {
     pub id: String,
     num_rooms: usize,
