@@ -19,7 +19,6 @@ pub trait ResidentStrategy: Send + Sync {
     fn perform_action(&self);
 }
 
-
 pub struct KillerStrategy;
 impl ResidentStrategy for KillerStrategy {
     fn perform_action(&self) {
@@ -45,7 +44,12 @@ pub struct Resident {
 }
 
 impl Resident {
-    pub fn new(name: String, age: usize, account_balance: f64, strategy: Arc<dyn ResidentStrategy>) -> Resident {
+    pub fn new(
+        name: String,
+        age: usize,
+        account_balance: f64,
+        strategy: Arc<dyn ResidentStrategy>,
+    ) -> Resident {
         Resident {
             name,
             age,
@@ -62,9 +66,19 @@ impl Resident {
     }
 
     pub fn describe(&self) -> String {
-        format!("{}, {} y.o., {:?}. Account balance: {}, status: {:?}{}",
-            self.name, self.age, self.resident_type, self.account_balance, self.status,
-            self.documents.iter().enumerate().map(|(dx, doc)| format!("\n{}. {}", dx, doc)).collect::<String>())
+        format!(
+            "{}, {} y.o., {:?}. Account balance: {}, status: {:?}{}",
+            self.name,
+            self.age,
+            self.resident_type,
+            self.account_balance,
+            self.status,
+            self.documents
+                .iter()
+                .enumerate()
+                .map(|(dx, doc)| format!("\n{}. {}", dx, doc))
+                .collect::<String>()
+        )
     }
 }
 

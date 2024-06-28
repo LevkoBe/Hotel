@@ -6,3 +6,5 @@ edition = "2021"
 [dependencies]
 lazy_static = "1.4.0"
 rand = "0.8"
+strum = "0.24.1"
+strum_macros = "0.24.1"

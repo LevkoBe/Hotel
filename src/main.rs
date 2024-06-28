@@ -1,17 +1,17 @@
-mod hotel;
 mod apartment;
-mod resident;
 mod document;
 mod game_flow;
-mod roles;
+mod hotel;
 mod manager;
-pub mod manager_states;
+mod manager_states;
+mod resident;
+mod roles;
+mod debug;
 
 use manager::Manager;
 use std::io::{self, Write};
 
-
-fn main() {
+fn run() {
     let mut manager = Manager::new();
     loop {
         print!("    => ");
@@ -24,4 +24,9 @@ fn main() {
         }
         manager.handle_command(&input);
     }
+}
+
+fn main() {
+    // debug::debug();
+    run();
 }

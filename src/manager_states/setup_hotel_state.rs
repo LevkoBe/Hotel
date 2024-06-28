@@ -1,5 +1,5 @@
-use crate::manager::{Manager, ManagerState};
 use crate::hotel;
+use crate::manager::{Manager, ManagerState};
 
 use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;
@@ -71,7 +71,11 @@ impl ManagerStateBehavior for SetUpHotelState {
             self.service,
         )
     }
-    fn handle_command(&mut self, hotel: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
+    fn handle_command(
+        &mut self,
+        hotel: &mut Option<hotel::Hotel>,
+        input: &[&str],
+    ) -> HandlingResult {
         match input[0] {
             "new" => {
                 println!("Hotel reset with a new random ID.");
@@ -105,7 +109,12 @@ impl ManagerStateBehavior for SetUpHotelState {
                 self.print_hotel_config();
             }
             "hotel" if input.len() >= 2 && input[1] == "set" => {
-                if self.id.is_empty() || self.num_rooms == 0 || self.capital == 0.0 || self.fee == 0.0 || self.service == 0.0 {
+                if self.id.is_empty()
+                    || self.num_rooms == 0
+                    || self.capital == 0.0
+                    || self.fee == 0.0
+                    || self.service == 0.0
+                {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
                     // hotel = &mut Some(hotel::Hotel::new( todo : move
@@ -127,10 +136,14 @@ impl ManagerStateBehavior for SetUpHotelState {
                 println!("new -- to reset all info about the hotel and generate a new random ID");
                 println!("id [id] -- to set a specific hotel ID");
                 println!("rooms [number of rooms] -- to set the number of rooms for the hotel");
-                println!("rps [rooms per story] -- to set the number of rooms per story in the hotel");
+                println!(
+                    "rps [rooms per story] -- to set the number of rooms per story in the hotel"
+                );
                 println!("capital [initial capital] -- to set the initial capital for the hotel");
                 println!("fee [fee] -- to set the entrance fee for the residents to settle into the hotel");
-                println!("service [daily costs per user] -- to set daily costs of the hotel per user");
+                println!(
+                    "service [daily costs per user] -- to set daily costs of the hotel per user"
+                );
                 println!("hotel set -- to finish hotel settings and move on to the next stage");
             }
             _ => println!("Invalid command"),

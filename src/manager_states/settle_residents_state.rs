@@ -1,25 +1,38 @@
-use crate::{hotel, resident::ResidentFactory, roles::Role};
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
+use crate::{hotel::{self, Hotel}, resident::ResidentFactory, roles::Role};
 
 #[derive(Clone)]
 pub struct SettleResidentsState;
 
 impl SettleResidentsState {
-    pub fn add_resident(&self, hotel: &mut Option<hotel::Hotel>, name: String, age: usize, account_balance: f64, apartment_number: Option<usize>) {
+    pub fn add_resident(
+        &self,
+        hotel: &mut Option<hotel::Hotel>,
+        name: String,
+        age: usize,
+        account_balance: f64,
+        apartment_number: Option<usize>,
+    ) {
         if hotel.as_ref().unwrap().available_rooms() == 0 {
             println!("No rooms available");
             return;
         }
 
-        let resident = ResidentFactory::create_resident(name, age, account_balance, Role::Newcomer);
-        if let Some(apartment_number) = apartment_number {
-            hotel.as_mut().unwrap().add_resident(resident, apartment_number);
-        } else {
-            if let Some(next_available_room) = hotel.as_mut().unwrap().find_next_available_room() {
-                hotel.as_mut().unwrap().add_resident(resident, next_available_room);
+        let hotel = hotel.as_mut().unwrap();
+        if let Some(role) = hotel.random_available_role() {
+            let resident = ResidentFactory::create_resident(name, age, account_balance, role);
+            if let Some(apartment_number) = apartment_number {
+                if hotel.is_room_available(apartment_number) {
+                    hotel.add_resident(resident, apartment_number);
+                } else {
+                    println!("Room unavailable");
+                }
             } else {
-                println!("No rooms available");
+                println!("No apartment number provided");
             }
+        } else {
+            println!("No roles available");
+            return;
         }
     }
 
@@ -43,10 +56,16 @@ impl SettleResidentsState {
 impl ManagerStateBehavior for SettleResidentsState {
     fn finish_setting(&self, hotel: Option<hotel::Hotel>) -> hotel::Hotel {
         hotel.unwrap_or_else(|| {
-            panic!("Hotel is not set up. Cannot finish setting up the game state."); // todo
+            panic!("Hotel is not set up. Cannot finish setting up the game state.");
+            // todo
         })
     }
-    fn handle_command(&mut self, hotel: &mut Option<hotel::Hotel>, input: &[&str]) -> HandlingResult {
+
+    fn handle_command(
+        &mut self,
+        hotel: &mut Option<hotel::Hotel>,
+        input: &[&str],
+    ) -> HandlingResult {
         match input[0] {
             "add" if input.len() == 6 && input[1] == "resident" => {
                 if let Some(ref mut _hotel) = hotel {
@@ -57,6 +76,11 @@ impl ManagerStateBehavior for SettleResidentsState {
                     self.add_resident(hotel, name, age, account_balance, Some(apartment_number));
                 } else {
                     println!("Hotel is not set up. Please set up the hotel first.");
+                }
+            }
+            "available" => {
+                if let Some(ref hotel) = hotel {
+                    println!("Available rooms: {}", hotel.available_rooms());
                 }
             }
             "get" if input.len() == 3 && input[1] == "room" => {

@@ -1,0 +1,7 @@
+id 123
+config
+hotel set
+help
+add resident [name] [age] [account balance] [apartment]
+add resident George 123 5000 13
+available

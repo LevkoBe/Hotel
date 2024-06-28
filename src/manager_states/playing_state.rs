@@ -1,5 +1,5 @@
-use crate::hotel;
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
+use crate::hotel;
 
 #[derive(Clone)]
 pub struct PlayingState;
