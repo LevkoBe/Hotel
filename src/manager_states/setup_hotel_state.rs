@@ -42,11 +42,9 @@ impl SetUpHotelState {
         println!("Entrance fee: {}", self.fee);
         println!("Daily service cost: {}", self.service);
     }
-}
 
-impl ManagerStateBehavior for SetUpHotelState {
-    fn finish_setting(&self) -> hotel::Hotel {
-        hotel::Hotel::new(
+    fn finish_setting(&self, game_flow: &mut game_flow::GameFlow) {
+        game_flow.hotel = hotel::Hotel::new(
             self.id.clone(),
             self.num_rooms,
             self.capital,
@@ -55,13 +53,12 @@ impl ManagerStateBehavior for SetUpHotelState {
             self.rps,
             self.fee,
             self.service,
-        )
+        );
     }
-    fn handle_command(
-        &mut self,
-        _: &mut Option<game_flow::GameFlow>,
-        input: &[&str],
-    ) -> HandlingResult {
+}
+
+impl ManagerStateBehavior for SetUpHotelState {
+    fn handle_command(&mut self, game_flow: &mut game_flow::GameFlow, input: &[&str]) -> HandlingResult {
         match input[0] {
             "new" => {
                 println!("Hotel reset with a new random ID.");
@@ -103,6 +100,7 @@ impl ManagerStateBehavior for SetUpHotelState {
                 {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
+                    self.finish_setting(game_flow);
                     println!("Hotel setup complete. Moving to resident settlement stage.");
                     return HandlingResult::ChangeState;
                 }

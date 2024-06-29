@@ -1,6 +1,6 @@
 use strum_macros::EnumIter;
 
-#[derive(EnumIter, Debug, Clone, Copy)]
+#[derive(EnumIter, Debug, Clone, Copy, PartialEq)]
 pub enum Role {
     Newcomer,
     Killer,

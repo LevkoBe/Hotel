@@ -1,6 +1,7 @@
+use std::sync::Arc;
+
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-use std::sync::Arc;
 use strum::IntoEnumIterator;
 
 use crate::{apartment::Apartment, resident::Resident, roles::roles::Role};
@@ -64,6 +65,14 @@ impl Hotel {
         }
     }
 
+    pub fn get_all_residents(&self) -> Vec<Arc<Resident>> {
+        let mut residents = Vec::new();
+        for apt in &self.apartments {
+            residents.extend(apt.resident.clone());
+        }
+        residents
+    }
+
     pub fn get_room(&self, apartment_number: usize) -> Option<(usize, usize)> {
         self.apartments
             .iter()
@@ -76,32 +85,23 @@ impl Hotel {
     }
 
     pub fn available_rooms(&self) -> usize {
-        self.apartments
-            .iter()
-            .filter(|a| a.resident.is_none())
-            .count()
+        self.apartments.iter().filter(|a| a.is_available()).count()
     }
 
     pub fn find_next_available_room(&self) -> Option<usize> {
-        self.apartments
-            .iter()
-            .position(|apt| apt.resident.is_none())
+        self.apartments.iter().position(|apt| apt.is_available())
     }
 
     pub fn is_room_available(&self, room_number: usize) -> bool {
         self.apartments
             .get(room_number)
-            .map(|a| a.resident.is_none())
+            .map(|a| a.is_available())
             .unwrap_or(false)
     }
 
     pub fn add_resident(&mut self, resident: Resident, apartment_number: usize) {
         if let Some(apartment) = self.apartments.get_mut(apartment_number) {
-            if apartment.resident.is_none() {
-                apartment.resident = Some(Arc::new(resident));
-            } else {
-                println!("Apartment is already occupied.");
-            }
+            apartment.assign_resident(resident);
         } else {
             println!("Invalid apartment number.");
         }

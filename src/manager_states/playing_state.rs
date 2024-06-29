@@ -1,22 +1,26 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::{game_flow, hotel};
+use crate::game_flow;
 
 #[derive(Clone)]
 pub struct PlayingState;
 
 impl ManagerStateBehavior for PlayingState {
-    fn finish_setting(&self) -> hotel::Hotel {
-        todo!()
-    }
     fn handle_command(
         &mut self,
-        _: &mut Option<game_flow::GameFlow>,
+        game_flow: &mut game_flow::GameFlow,
         input: &[&str],
     ) -> HandlingResult {
         match input[0] {
             "move" => {
+                game_flow.next_turn();
                 // Implement move logic based on player's strategy
                 println!("Player moved");
+            }
+            "mail" => {
+                todo!();
+            }
+            "announce" => {
+                todo!();
             }
             "cheat" => {
                 // Implement cheat logic

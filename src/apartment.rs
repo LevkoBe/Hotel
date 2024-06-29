@@ -17,8 +17,12 @@ impl Apartment {
         }
     }
 
-    pub fn assign_resident(&mut self, resident: Arc<Resident>) {
-        self.resident = Some(resident);
+    pub fn assign_resident(&mut self, resident: Resident) {
+        if self.is_available() {
+            self.resident = Some(Arc::new(resident));
+        } else {
+            println!("Apartment is already occupied.");
+        }
     }
 
     pub fn is_available(&self) -> bool {

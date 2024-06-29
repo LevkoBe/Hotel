@@ -49,57 +49,39 @@ impl SettleResidentsState {
 }
 
 impl ManagerStateBehavior for SettleResidentsState {
-    fn finish_setting(&self) -> hotel::Hotel {
-        todo!()
-    }
-
     fn handle_command(
         &mut self,
-        game_flow: &mut Option<game_flow::GameFlow>,
+        game_flow: &mut game_flow::GameFlow,
         input: &[&str],
     ) -> HandlingResult {
         match input[0] {
             "add" if input.len() == 6 && input[1] == "resident" => {
-                if let Some(ref mut game_flow) = game_flow {
-                    let name = input[2].to_string();
-                    let age: usize = input[3].parse().unwrap_or(0);
-                    let account_balance: f64 = input[4].parse().unwrap_or(0.0);
-                    let apartment_number: usize = input[5].parse().unwrap_or(0);
-                    self.add_resident(
-                        &mut game_flow.hotel,
-                        name,
-                        age,
-                        account_balance,
-                        Some(apartment_number),
-                    );
-                } else {
-                    println!("Hotel is not set up. Please set up the hotel first.");
-                }
+                let name = input[2].to_string();
+                let age: usize = input[3].parse().unwrap_or(0);
+                let account_balance: f64 = input[4].parse().unwrap_or(0.0);
+                let apartment_number: usize = input[5].parse().unwrap_or(0);
+                self.add_resident(
+                    &mut game_flow.hotel,
+                    name,
+                    age,
+                    account_balance,
+                    Some(apartment_number),
+                );
             }
             "available" => {
-                if let Some(ref game_flow) = game_flow {
-                    println!("Available rooms: {}", game_flow.hotel.available_rooms());
-                }
+                println!("Available rooms: {}", game_flow.hotel.available_rooms());
             }
             "get" if input.len() == 3 && input[1] == "room" => {
-                if let Some(ref game_flow) = game_flow {
-                    let apartment_number: usize = input[2].parse().unwrap_or(0);
-                    match game_flow.hotel.get_room(apartment_number) {
-                        Some((number, floor)) => println!("Room {} on floor {}", number, floor),
-                        None => println!("Apartment not found"),
-                    }
-                } else {
-                    println!("Hotel is not set up. Please set up the hotel first.");
+                let apartment_number: usize = input[2].parse().unwrap_or(0);
+                match game_flow.hotel.get_room(apartment_number) {
+                    Some((number, floor)) => println!("Room {} on floor {}", number, floor),
+                    None => println!("Apartment not found"),
                 }
             }
             "residents" if input.len() == 2 && input[1] == "settled" => {
-                if let Some(game_flow) = game_flow {
-                    self.settle_remaining_residents(&mut game_flow.hotel);
-                    println!("Residents settled. Moving to game stage.");
-                    return HandlingResult::ChangeState;
-                } else {
-                    println!("Hotel is not set up. Please set up the hotel first.");
-                }
+                self.settle_remaining_residents(&mut game_flow.hotel);
+                println!("Residents settled. Moving to game stage.");
+                return HandlingResult::ChangeState;
             }
             "help" => {
                 println!("Available commands:");

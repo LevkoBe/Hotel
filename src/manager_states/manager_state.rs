@@ -12,7 +12,7 @@ pub enum ManagerState {
 impl ManagerState {
     pub fn handle_command(
         &mut self,
-        game_flow: &mut Option<game_flow::GameFlow>,
+        game_flow: &mut game_flow::GameFlow,
         input: &[&str],
     ) -> HandlingResult {
         match self {

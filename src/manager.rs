@@ -8,27 +8,14 @@ use crate::{
 
 pub struct Manager {
     state: ManagerState,
-    pub game_flow: Option<GameFlow>,
+    pub game_flow: GameFlow,
 }
 
 impl Manager {
     pub fn new() -> Self {
         Manager {
             state: ManagerState::SetUpHotel(Box::new(SetUpHotelState::new())),
-            game_flow: Some(GameFlow::new()),
-        }
-    }
-
-    pub fn save_hotel(&mut self) {
-        match &self.state {
-            ManagerState::SetUpHotel(state) => {
-                if let Some(game_flow) = &mut self.game_flow {
-                    game_flow.hotel = state.finish_setting();
-                }
-            }
-            _ => {
-                panic!("Invalid state for saving hotel");
-            }
+            game_flow: GameFlow::new(),
         }
     }
 
@@ -52,7 +39,6 @@ impl Manager {
             },
             HandlingResult::ChangeState => match self.state {
                 ManagerState::SetUpHotel(_) => {
-                    self.save_hotel();
                     self.state = ManagerState::SettleResidents(Box::new(SettleResidentsState));
                 }
                 ManagerState::SettleResidents(_) => {

@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     document::Document,
+    hotel,
     roles::{
         roles::Role, strategies::ResidentStrategy, AvengerStrategy, DoctorStrategy,
         JanitorStrategy, JudgeStrategy, KillerStrategy, OldWomanStrategy, PolicemanStrategy,
@@ -23,13 +24,13 @@ pub enum ResidentType {
 }
 
 pub struct Resident {
-    name: String,
-    age: usize,
-    account_balance: f64,
-    status: Status,
-    resident_type: ResidentType,
-    documents: Vec<Document>,
-    strategy: Arc<dyn ResidentStrategy>,
+    pub name: String,
+    pub age: usize,
+    pub account_balance: f64,
+    pub status: Status,
+    pub resident_type: ResidentType,
+    pub documents: Vec<Document>,
+    pub strategy: Arc<dyn ResidentStrategy>,
 }
 
 impl Resident {
@@ -50,8 +51,8 @@ impl Resident {
         }
     }
 
-    pub fn perform_action(&self) {
-        self.strategy.perform_action();
+    pub fn perform_action(&self, hotel: &mut hotel::Hotel) {
+        self.strategy.perform_action(hotel);
     }
 
     pub fn describe(&self) -> String {
