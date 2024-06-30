@@ -13,7 +13,7 @@ impl SettleResidentsState {
         account_balance: f64,
         apartment_number: Option<usize>,
     ) {
-        if hotel.available_rooms() == 0 {
+        if hotel.available_rooms_count() == 0 {
             println!("No rooms available");
             return;
         }
@@ -36,7 +36,7 @@ impl SettleResidentsState {
     }
 
     pub fn settle_remaining_residents(&self, hotel: &mut hotel::Hotel) {
-        while hotel.available_rooms() > 0 {
+        while hotel.available_rooms_count() > 0 {
             let bot = ResidentFactory::generate_random();
             if let Some(next_available_room) = hotel.find_next_available_room() {
                 hotel.add_resident(bot, next_available_room);
@@ -69,7 +69,10 @@ impl ManagerStateBehavior for SettleResidentsState {
                 );
             }
             "available" => {
-                println!("Available rooms: {}", game_flow.hotel.available_rooms());
+                println!(
+                    "Available rooms: {}",
+                    game_flow.hotel.available_rooms_count()
+                );
             }
             "get" if input.len() == 3 && input[1] == "room" => {
                 let apartment_number: usize = input[2].parse().unwrap_or(0);

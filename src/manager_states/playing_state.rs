@@ -12,9 +12,9 @@ impl ManagerStateBehavior for PlayingState {
     ) -> HandlingResult {
         match input[0] {
             "move" => {
-                game_flow.next_turn();
-                // Implement move logic based on player's strategy
-                println!("Player moved");
+                while !game_flow.next_turn() {
+                    // the first human's move will trigger the loop to teminate
+                }
             }
             "mail" => {
                 todo!();

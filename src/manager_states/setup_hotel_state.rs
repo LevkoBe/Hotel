@@ -58,7 +58,11 @@ impl SetUpHotelState {
 }
 
 impl ManagerStateBehavior for SetUpHotelState {
-    fn handle_command(&mut self, game_flow: &mut game_flow::GameFlow, input: &[&str]) -> HandlingResult {
+    fn handle_command(
+        &mut self,
+        game_flow: &mut game_flow::GameFlow,
+        input: &[&str],
+    ) -> HandlingResult {
         match input[0] {
             "new" => {
                 println!("Hotel reset with a new random ID.");

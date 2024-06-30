@@ -1,11 +1,10 @@
 use crate::resident::Resident;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-#[derive(Clone)]
 pub struct Apartment {
     pub number: usize,
     pub floor: usize,
-    pub resident: Option<Arc<Resident>>,
+    pub resident: Option<Arc<Mutex<Resident>>>,
 }
 
 impl Apartment {
@@ -19,7 +18,7 @@ impl Apartment {
 
     pub fn assign_resident(&mut self, resident: Resident) {
         if self.is_available() {
-            self.resident = Some(Arc::new(resident));
+            self.resident = Some(Arc::new(Mutex::new(resident)));
         } else {
             println!("Apartment is already occupied.");
         }

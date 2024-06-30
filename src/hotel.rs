@@ -1,7 +1,6 @@
-use std::sync::Arc;
-
 use rand::seq::SliceRandom;
 use rand::thread_rng;
+use std::sync::{Arc, Mutex};
 use strum::IntoEnumIterator;
 
 use crate::{apartment::Apartment, resident::Resident, roles::roles::Role};
@@ -17,7 +16,6 @@ pub enum BuildingType {
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
 pub struct Hotel {
     pub id: String,
     num_rooms: usize,
@@ -60,15 +58,25 @@ impl Hotel {
             rooms_per_story,
             entry_fee,
             daily_costs,
-            apartments: vec![Apartment::new(0, 0); num_rooms],
+            apartments: Hotel::initialize_apartments(num_rooms),
             available_roles,
         }
     }
 
-    pub fn get_all_residents(&self) -> Vec<Arc<Resident>> {
+    pub fn initialize_apartments(num_rooms: usize) -> Vec<Apartment> {
+        let mut apartments = Vec::new();
+        for i in 0..num_rooms {
+            apartments.push(Apartment::new(i, 0));
+        }
+        apartments
+    }
+
+    pub fn get_all_residents(&self) -> Vec<Arc<Mutex<Resident>>> {
         let mut residents = Vec::new();
         for apt in &self.apartments {
-            residents.extend(apt.resident.clone());
+            if let Some(resident) = &apt.resident {
+                residents.push(Arc::clone(resident));
+            }
         }
         residents
     }
@@ -84,7 +92,21 @@ impl Hotel {
         self.available_roles.pop()
     }
 
-    pub fn available_rooms(&self) -> usize {
+    pub fn available_rooms(&self) -> Vec<usize> {
+        self.apartments
+            .iter()
+            .enumerate()
+            .filter_map(|(index, apt)| {
+                if apt.is_available() {
+                    Some(index)
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    pub fn available_rooms_count(&self) -> usize {
         self.apartments.iter().filter(|a| a.is_available()).count()
     }
 

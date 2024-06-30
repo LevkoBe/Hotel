@@ -1,6 +1,10 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
-use crate::{hotel::Hotel, resident::Resident, roles::roles::Role};
+use crate::{
+    hotel::Hotel,
+    resident::{Resident, ResidentType},
+    roles::roles::Role,
+};
 use rand::seq::SliceRandom;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -11,7 +15,7 @@ pub struct GameFlow {
     pub days_passed: usize,
     pub current_moving_player: usize,
     pub flow_sequence: FlowSequence,
-    pub residents: Vec<Arc<Resident>>,
+    pub residents: Vec<Arc<Mutex<Resident>>>,
 }
 
 impl GameFlow {
@@ -40,19 +44,29 @@ impl GameFlow {
         self.residents = self.hotel.get_all_residents();
         match self.flow_sequence {
             FlowSequence::Alphabetical => {
-                self.residents.sort_by(|a, b| a.name.cmp(&b.name));
+                self.residents.sort_by(|a, b| {
+                    let a_name = a.lock().unwrap().name.clone();
+                    let b_name = b.lock().unwrap().name.clone();
+                    a_name.cmp(&b_name)
+                });
             }
             FlowSequence::Ordered => {
                 let possible_roles: Vec<Role> = Role::iter().collect();
                 self.residents.sort_by(|a, b| {
-                    let a_role_index = possible_roles
-                        .iter()
-                        .position(|r| *r == a.strategy.confess_role())
-                        .unwrap();
-                    let b_role_index = possible_roles
-                        .iter()
-                        .position(|r| *r == b.strategy.confess_role())
-                        .unwrap();
+                    let a_role_index = {
+                        let a_resident = a.lock().unwrap();
+                        possible_roles
+                            .iter()
+                            .position(|r| *r == a_resident.strategy.confess_role())
+                            .unwrap()
+                    };
+                    let b_role_index = {
+                        let b_resident = b.lock().unwrap();
+                        possible_roles
+                            .iter()
+                            .position(|r| *r == b_resident.strategy.confess_role())
+                            .unwrap()
+                    };
                     a_role_index.cmp(&b_role_index)
                 });
             }
@@ -66,13 +80,21 @@ impl GameFlow {
         }
     }
 
-    pub fn next_turn(&mut self) {
-        let cur_player = &mut self.residents[self.current_moving_player];
-        cur_player.perform_action(&mut self.hotel);
+    pub fn next_turn(&mut self) -> bool {
+        // bool(next *human* turn)
+        let is_human;
+        {
+            let cur_player = &self.residents[self.current_moving_player];
+            let resident = cur_player.lock().unwrap();
+            resident.perform_action(&mut self.hotel);
+            is_human = resident.resident_type == ResidentType::Human;
+        }
         self.current_moving_player = (self.current_moving_player + 1) % self.residents.len();
         if self.current_moving_player == 0 {
             self.switch_day_night();
+            return true; // even if all moves were done by bots, time to stop
         }
+        is_human
     }
 
     pub fn switch_day_night(&mut self) {

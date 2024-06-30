@@ -17,7 +17,7 @@ pub enum Status {
     Dead,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ResidentType {
     Human,
     Bot,
