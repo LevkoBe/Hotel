@@ -5,7 +5,7 @@ use crate::{
     resident::{Resident, ResidentType},
     roles::Role,
 };
-use rand::seq::SliceRandom;
+use rand::{distributions::Alphanumeric, seq::SliceRandom, thread_rng, Rng};
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
@@ -20,8 +20,14 @@ pub struct GameFlow {
 
 impl GameFlow {
     pub fn new() -> Self {
+        let random_id: String = thread_rng()
+            .sample_iter(&Alphanumeric)
+            .take(10)
+            .map(char::from)
+            .collect();
+
         let hotel = Hotel::new(
-            "Hotel1".to_string(),
+            random_id,
             16,
             10000.0,
             crate::hotel::BuildingType::Rectangular,
@@ -77,11 +83,16 @@ impl GameFlow {
             FlowSequence::Chaotic => {
                 // Sorting each move*
             }
+            FlowSequence::Scheduled => {
+                unimplemented!()
+                // more like an online-version game, with each person scheduling their night's walk at specific time
+            }
         }
     }
 
     pub fn next_turn(&mut self) -> bool {
         // bool(next *human* turn made)
+        self.current_state = GameTime::Night;
         let is_human;
         {
             let cur_player = &self.residents[self.current_moving_player];
@@ -143,4 +154,5 @@ pub enum FlowSequence {
     Random,
     Alphabetical,
     Chaotic,
+    Scheduled,
 }

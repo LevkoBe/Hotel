@@ -1,8 +1,14 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::game_flow;
+use crate::{game_flow, hotel};
 
 #[derive(Clone)]
 pub struct PlayingState;
+
+impl PlayingState {
+    fn print_hotel(&self, hotel: &hotel::Hotel, style: &str) {
+        hotel.print_hotel(style, None, None);
+    }
+}
 
 impl ManagerStateBehavior for PlayingState {
     fn handle_command(
@@ -15,6 +21,9 @@ impl ManagerStateBehavior for PlayingState {
                 while !game_flow.next_turn() {
                     // the first human's move will trigger the loop to teminate
                 }
+            }
+            "hotel" if input.len() > 1 => {
+                self.print_hotel(&game_flow.hotel, input[1]);
             }
             "mail" => {
                 todo!();

@@ -2,58 +2,19 @@ use crate::{game_flow, hotel};
 
 use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;
-use rand::distributions::Alphanumeric;
-use rand::{thread_rng, Rng};
 
 #[derive(Clone)]
-pub struct SetUpHotelState {
-    id: String,
-    num_rooms: usize,
-    rps: usize,
-    capital: f64,
-    fee: f64,
-    service: f64,
-}
+pub struct SetUpHotelState;
 
 impl SetUpHotelState {
-    pub fn new() -> Self {
-        let random_id: String = thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(10)
-            .map(char::from)
-            .collect();
-
-        SetUpHotelState {
-            id: random_id,
-            num_rooms: 50,
-            rps: 10,
-            capital: 100000.0,
-            fee: 100.0,
-            service: 20.0,
-        }
-    }
-
-    fn print_hotel_config(&self) {
+    fn print_hotel_config(&self, hotel: &hotel::Hotel) {
         println!("Current hotel configuration:");
-        println!("ID: {}", self.id);
-        println!("Number of rooms: {}", self.num_rooms);
-        println!("Rooms per story: {}", self.rps);
-        println!("Initial capital: {}", self.capital);
-        println!("Entrance fee: {}", self.fee);
-        println!("Daily service cost: {}", self.service);
-    }
-
-    fn finish_setting(&self, game_flow: &mut game_flow::GameFlow) {
-        game_flow.hotel = hotel::Hotel::new(
-            self.id.clone(),
-            self.num_rooms,
-            self.capital,
-            hotel::BuildingType::Rectangular,
-            0,
-            self.rps,
-            self.fee,
-            self.service,
-        );
+        println!("ID: {}", hotel.id);
+        println!("Number of rooms: {}", hotel.num_rooms);
+        println!("Rooms per story: {}", hotel.rooms_per_story);
+        println!("Initial capital: {}", hotel.capital);
+        println!("Entrance fee: {}", hotel.entrance_fee);
+        println!("Daily service cost: {}", hotel.daily_costs);
     }
 }
 
@@ -69,42 +30,42 @@ impl ManagerStateBehavior for SetUpHotelState {
                 return HandlingResult::ResetState;
             }
             "id" if input.len() == 2 => {
-                self.id = input[1].to_string();
+                // self.id = input[1].to_string();
+                game_flow.hotel.id = input[1].to_string();
                 println!("Hotel ID set to {}", input[1]);
             }
             "rooms" if input.len() == 2 => {
-                self.num_rooms = input[1].parse().unwrap_or(0);
+                game_flow.hotel.num_rooms = input[1].parse().unwrap_or(0);
                 println!("Number of rooms set to {}", input[1]);
             }
             "rps" if input.len() == 2 => {
-                self.rps = input[1].parse().unwrap_or(0);
+                game_flow.hotel.rooms_per_story = input[1].parse().unwrap_or(0);
                 println!("Rooms per story set to {}", input[1]);
             }
             "capital" if input.len() == 2 => {
-                self.capital = input[1].parse().unwrap_or(0.0);
+                game_flow.hotel.capital = input[1].parse().unwrap_or(0.0);
                 println!("Initial capital set to {}", input[1]);
             }
             "fee" if input.len() == 2 => {
-                self.fee = input[1].parse().unwrap_or(0.0);
+                game_flow.hotel.entrance_fee = input[1].parse().unwrap_or(0.0);
                 println!("Entrance fee set to {}", input[1]);
             }
             "service" if input.len() == 2 => {
-                self.service = input[1].parse().unwrap_or(0.0);
+                game_flow.hotel.daily_costs = input[1].parse().unwrap_or(0.0);
                 println!("Daily service cost set to {}", input[1]);
             }
             "config" => {
-                self.print_hotel_config();
+                self.print_hotel_config(&game_flow.hotel);
             }
             "hotel" if input.len() >= 2 && input[1] == "set" => {
-                if self.id.is_empty()
-                    || self.num_rooms == 0
-                    || self.capital == 0.0
-                    || self.fee == 0.0
-                    || self.service == 0.0
+                if game_flow.hotel.id.is_empty()
+                    || game_flow.hotel.num_rooms == 0
+                    || game_flow.hotel.capital == 0.0
+                    || game_flow.hotel.entrance_fee == 0.0
+                    || game_flow.hotel.daily_costs == 0.0
                 {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
-                    self.finish_setting(game_flow);
                     println!("Hotel setup complete. Moving to resident settlement stage.");
                     return HandlingResult::ChangeState;
                 }

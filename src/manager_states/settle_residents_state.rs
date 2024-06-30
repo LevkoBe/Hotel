@@ -19,15 +19,16 @@ impl SettleResidentsState {
         }
 
         if let Some(role) = hotel.random_available_role() {
-            let resident = ResidentFactory::create_resident(
-                name,
-                age,
-                account_balance,
-                role,
-                crate::resident::ResidentType::Human,
-            );
             if let Some(apartment_number) = apartment_number {
                 if hotel.is_room_available(apartment_number) {
+                    let resident = ResidentFactory::create_resident(
+                        name,
+                        age,
+                        account_balance,
+                        apartment_number,
+                        role,
+                        crate::resident::ResidentType::Human,
+                    );
                     hotel.add_resident(resident, apartment_number);
                 } else {
                     println!("Room unavailable");
@@ -43,8 +44,8 @@ impl SettleResidentsState {
 
     pub fn settle_remaining_residents(&self, hotel: &mut hotel::Hotel) {
         while hotel.available_rooms_count() > 0 {
-            let bot = ResidentFactory::generate_random();
             if let Some(next_available_room) = hotel.find_next_available_room() {
+                let bot = ResidentFactory::generate_random(next_available_room);
                 hotel.add_resident(bot, next_available_room);
             } else {
                 break;

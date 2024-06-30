@@ -14,7 +14,7 @@ pub struct Manager {
 impl Manager {
     pub fn new() -> Self {
         Manager {
-            state: ManagerState::SetUpHotel(Box::new(SetUpHotelState::new())),
+            state: ManagerState::SetUpHotel(Box::new(SetUpHotelState)),
             game_flow: GameFlow::new(),
         }
     }
@@ -25,7 +25,7 @@ impl Manager {
             HandlingResult::KeepState => {}
             HandlingResult::ResetState => match self.state {
                 ManagerState::SetUpHotel(_) => {
-                    self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
+                    self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState));
                 }
                 ManagerState::SettleResidents(_) => {
                     self.state = ManagerState::SettleResidents(Box::new(SettleResidentsState));
@@ -52,7 +52,7 @@ impl Manager {
                 }
             },
             HandlingResult::Restart => {
-                self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState::new()));
+                self.state = ManagerState::SetUpHotel(Box::new(SetUpHotelState));
             }
         }
     }

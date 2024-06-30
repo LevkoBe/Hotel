@@ -12,4 +12,11 @@ residents settled
 help
 play
 
+hotel #nst
+hotel default
+
 move
+12
+
+hotel #nst
+hotel default

@@ -30,6 +30,7 @@ pub struct Resident {
     pub name: String,
     pub age: usize,
     pub account_balance: f64,
+    pub current_position: usize, // apartment
     pub status: Status,
     pub resident_type: ResidentType,
     pub documents: Vec<Document>,
@@ -41,6 +42,7 @@ impl Resident {
         name: String,
         age: usize,
         account_balance: f64,
+        current_position: usize,
         strategy: Arc<dyn ResidentStrategy>,
         resident_type: ResidentType,
     ) -> Resident {
@@ -48,6 +50,7 @@ impl Resident {
             name,
             age,
             account_balance,
+            current_position,
             status: Status::Alive,
             resident_type,
             documents: Vec::new(),
@@ -83,6 +86,7 @@ impl ResidentFactory {
         name: String,
         age: usize,
         account_balance: f64,
+        current_position: usize,
         role: Role,
         resident_type: ResidentType,
     ) -> Resident {
@@ -99,10 +103,17 @@ impl ResidentFactory {
             _ => unimplemented!(),
         };
 
-        Resident::new(name, age, account_balance, strategy, resident_type)
+        Resident::new(
+            name,
+            age,
+            account_balance,
+            current_position,
+            strategy,
+            resident_type,
+        )
     }
 
-    pub fn generate_random() -> Resident {
+    pub fn generate_random(apartment: usize) -> Resident {
         let mut rng = rand::thread_rng();
 
         let names = vec!["Alice", "Bob", "Charlie", "Diana", "Eve"];
@@ -121,7 +132,14 @@ impl ResidentFactory {
             8 => Role::Professor,
             _ => unimplemented!(),
         };
-        Self::create_resident(name, age, account_balance, role, ResidentType::Bot)
+        Self::create_resident(
+            name,
+            age,
+            account_balance,
+            apartment,
+            role,
+            ResidentType::Bot,
+        )
     }
 }
 
