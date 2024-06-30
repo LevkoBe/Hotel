@@ -4,7 +4,7 @@ use strum_macros::EnumIter;
 pub enum Role {
     Newcomer,
     Killer,
-    Policeman,
+    Police,
     Doctor,
     Janitor,
     OldWoman,

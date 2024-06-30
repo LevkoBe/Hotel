@@ -7,6 +7,7 @@ mod manager;
 mod manager_states;
 mod resident;
 mod roles;
+pub mod strategies;
 
 use manager::Manager;
 use std::io::{self, Write};

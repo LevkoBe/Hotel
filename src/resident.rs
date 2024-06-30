@@ -4,10 +4,13 @@ use std::sync::Arc;
 use crate::{
     document::Document,
     hotel,
-    roles::{
-        roles::Role, strategies::ResidentStrategy, AvengerStrategy, DoctorStrategy,
-        JanitorStrategy, JudgeStrategy, KillerStrategy, OldWomanStrategy, PolicemanStrategy,
-        ProfessorStrategy, SwindlerStrategy,
+    roles::Role,
+    strategies::{
+        _strategy::ResidentStrategy, avenger_strategy::AvengerStrategy,
+        doctor_strategy::DoctorStrategy, janitor_strategy::JanitorStrategy,
+        judge_strategy::JudgeStrategy, killer_strategy::KillerStrategy,
+        old_woman_strategy::OldWomanStrategy, police_strategy::PoliceStrategy,
+        professor_strategy::ProfessorStrategy, swindler_strategy::SwindlerStrategy,
     },
 };
 
@@ -39,20 +42,21 @@ impl Resident {
         age: usize,
         account_balance: f64,
         strategy: Arc<dyn ResidentStrategy>,
+        resident_type: ResidentType,
     ) -> Resident {
         Resident {
             name,
             age,
             account_balance,
             status: Status::Alive,
-            resident_type: ResidentType::Human,
+            resident_type,
             documents: Vec::new(),
             strategy,
         }
     }
 
     pub fn perform_action(&self, hotel: &mut hotel::Hotel) {
-        self.strategy.perform_action(hotel);
+        self.strategy.perform_action(self, hotel);
     }
 
     pub fn describe(&self) -> String {
@@ -75,10 +79,16 @@ impl Resident {
 pub struct ResidentFactory;
 
 impl ResidentFactory {
-    pub fn create_resident(name: String, age: usize, account_balance: f64, role: Role) -> Resident {
+    pub fn create_resident(
+        name: String,
+        age: usize,
+        account_balance: f64,
+        role: Role,
+        resident_type: ResidentType,
+    ) -> Resident {
         let strategy: Arc<dyn ResidentStrategy> = match role {
             Role::Killer => Arc::new(KillerStrategy),
-            Role::Policeman => Arc::new(PolicemanStrategy),
+            Role::Police => Arc::new(PoliceStrategy),
             Role::Doctor => Arc::new(DoctorStrategy),
             Role::Janitor => Arc::new(JanitorStrategy),
             Role::OldWoman => Arc::new(OldWomanStrategy),
@@ -89,7 +99,7 @@ impl ResidentFactory {
             _ => unimplemented!(),
         };
 
-        Resident::new(name, age, account_balance, strategy)
+        Resident::new(name, age, account_balance, strategy, resident_type)
     }
 
     pub fn generate_random() -> Resident {
@@ -101,7 +111,7 @@ impl ResidentFactory {
         let account_balance = rng.gen_range(1000.0..10000.0);
         let role = match rng.gen_range(0..9) {
             0 => Role::Killer,
-            1 => Role::Policeman,
+            1 => Role::Police,
             2 => Role::Doctor,
             3 => Role::Janitor,
             4 => Role::OldWoman,
@@ -111,7 +121,7 @@ impl ResidentFactory {
             8 => Role::Professor,
             _ => unimplemented!(),
         };
-        Self::create_resident(name, age, account_balance, role)
+        Self::create_resident(name, age, account_balance, role, ResidentType::Bot)
     }
 }
 

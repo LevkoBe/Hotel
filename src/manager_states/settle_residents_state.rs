@@ -19,7 +19,13 @@ impl SettleResidentsState {
         }
 
         if let Some(role) = hotel.random_available_role() {
-            let resident = ResidentFactory::create_resident(name, age, account_balance, role);
+            let resident = ResidentFactory::create_resident(
+                name,
+                age,
+                account_balance,
+                role,
+                crate::resident::ResidentType::Human,
+            );
             if let Some(apartment_number) = apartment_number {
                 if hotel.is_room_available(apartment_number) {
                     hotel.add_resident(resident, apartment_number);

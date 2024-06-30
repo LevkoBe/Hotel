@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     hotel::Hotel,
     resident::{Resident, ResidentType},
-    roles::roles::Role,
+    roles::Role,
 };
 use rand::seq::SliceRandom;
 use strum::IntoEnumIterator;
@@ -81,7 +81,7 @@ impl GameFlow {
     }
 
     pub fn next_turn(&mut self) -> bool {
-        // bool(next *human* turn)
+        // bool(next *human* turn made)
         let is_human;
         {
             let cur_player = &self.residents[self.current_moving_player];

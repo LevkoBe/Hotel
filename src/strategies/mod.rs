@@ -1,0 +1,10 @@
+pub mod _strategy;
+pub mod avenger_strategy;
+pub mod doctor_strategy;
+pub mod janitor_strategy;
+pub mod judge_strategy;
+pub mod killer_strategy;
+pub mod old_woman_strategy;
+pub mod police_strategy;
+pub mod professor_strategy;
+pub mod swindler_strategy;
