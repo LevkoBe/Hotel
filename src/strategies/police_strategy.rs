@@ -1,7 +1,7 @@
-use rand::Rng;
+use rand::seq::SliceRandom;
 
 use super::_strategy::ResidentStrategy;
-use crate::{hotel, resident::Resident, roles::Role};
+use crate::{game_history, hotel, roles::Role};
 
 pub struct PoliceStrategy;
 
@@ -13,14 +13,40 @@ impl PoliceStrategy {
 }
 
 impl ResidentStrategy for PoliceStrategy {
-    fn perform_action_human(&self, _resident: &Resident, hotel: &mut hotel::Hotel) {
-        let target = self.choose_target(hotel);
+    fn perform_action_human(
+        &self,
+        police_apartment: usize,
+        hotel: &mut hotel::Hotel,
+        history: &mut game_history::GameHistory,
+    ) {
+        let target = self.choose_target(police_apartment, hotel);
         self.investigate(hotel, target);
+        history.add_action(
+            police_apartment,
+            std::format!("{:?}", "action"),
+            target,
+            None,
+        );
     }
 
-    fn perform_action_bot(&self, _resident: &Resident, hotel: &mut hotel::Hotel) {
-        let target = rand::thread_rng().gen_range(0..hotel.apartments.len());
-        self.investigate(hotel, target);
+    fn perform_action_bot(
+        &self,
+        police_apartment: usize,
+        hotel: &mut hotel::Hotel,
+        history: &mut game_history::GameHistory,
+    ) {
+        if let Some(target) = hotel.get_ready_apartments(Some(police_apartment)).choose(&mut rand::thread_rng()) {
+            self.investigate(hotel, *target);
+            history.add_action(
+                police_apartment,
+                std::format!("{:?}", "action"),
+                *target,
+                None,
+            );
+        } else {
+            println!("No available apartments to perform action");
+            return;
+        }
     }
 
     fn confess_role(&self) -> Role {

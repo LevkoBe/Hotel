@@ -1,17 +1,13 @@
 use std::io::{self, Write};
 
-use rand::Rng;
+use rand::seq::SliceRandom;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use super::_strategy::ResidentStrategy;
-use crate::{
-    hotel,
-    resident::{Resident, Status},
-    roles::Role,
-};
+use crate::{game_history, hotel, resident::Status, roles::Role};
 
-#[derive(EnumIter, Debug)]
+#[derive(EnumIter, Debug, Clone)]
 pub enum KillerAction {
     Kill,
     Rob,
@@ -48,7 +44,13 @@ impl KillerStrategy {
         }
     }
 
-    fn perform_killer_action(&self, action: KillerAction, hotel: &mut hotel::Hotel, target: usize) {
+    fn perform_killer_action(
+        &self,
+        action: KillerAction,
+        hotel: &mut hotel::Hotel,
+        target: usize,
+        killer: usize,
+    ) {
         match action {
             KillerAction::Kill => {
                 if let Some(resident) = &hotel.apartments[target].resident {
@@ -56,11 +58,14 @@ impl KillerStrategy {
                     resident.status = Status::Dead;
                 }
                 println!("Killer kills the resident in apartment {}", target);
-                // Implement the kill logic
             }
             KillerAction::Threaten => {
                 println!("Killer threatens the resident in apartment {}", target);
-                // Implement the threaten logic
+                let mut mail = String::new();
+                println!("Please, write the mail to the resident from the apartment:");
+                io::stdin().read_line(&mut mail).unwrap();
+                hotel.apartments[target].mails.push(mail);
+                // todo: Implement a bit more useful threaten logic (to enforce to action)
             }
             KillerAction::Bribe => {
                 println!("Killer bribes the resident in apartment {}", target);
@@ -68,6 +73,18 @@ impl KillerStrategy {
             }
             KillerAction::Rob => {
                 println!("Killer robs the resident in apartment {}", target);
+                if let Some(target_resident) = &hotel.apartments[target].resident {
+                    let mut res = target_resident.lock().unwrap();
+                    let money = res.account_balance;
+                    res.account_balance = 0.0;
+                    let mut killer = hotel.apartments[killer]
+                        .resident
+                        .as_ref()
+                        .unwrap()
+                        .lock()
+                        .unwrap();
+                    killer.account_balance += money;
+                }
                 // Implement the rob logic
             }
         }
@@ -75,16 +92,37 @@ impl KillerStrategy {
 }
 
 impl ResidentStrategy for KillerStrategy {
-    fn perform_action_human(&self, _resident: &Resident, hotel: &mut hotel::Hotel) {
+    fn perform_action_human(
+        &self,
+        killer_apartment: usize,
+        hotel: &mut hotel::Hotel,
+        history: &mut game_history::GameHistory,
+    ) {
+        let target = self.choose_target(killer_apartment, hotel);
         let action = self.choose_action();
-        let target = self.choose_target(hotel);
-        self.perform_killer_action(action, hotel, target);
+        self.perform_killer_action(action.clone(), hotel, target, killer_apartment);
+        history.add_action(killer_apartment, std::format!("{:?}", action), target, None);
     }
 
-    fn perform_action_bot(&self, _resident: &Resident, hotel: &mut hotel::Hotel) {
-        let action = KillerAction::Kill; // Bots always choose to kill, change as needed
-        let target = rand::thread_rng().gen_range(0..hotel.apartments.len());
-        self.perform_killer_action(action, hotel, target);
+    fn perform_action_bot(
+        &self,
+        killer_apartment: usize,
+        hotel: &mut hotel::Hotel,
+        history: &mut game_history::GameHistory,
+    ) {
+        if let Some(target) = hotel.get_ready_apartments(Some(killer_apartment)).choose(&mut rand::thread_rng()) {
+            let action = KillerAction::Kill; // Bots always choose to kill, change as needed
+            self.perform_killer_action(action.clone(), hotel, *target, killer_apartment);
+            history.add_action(
+                killer_apartment,
+                std::format!("{:?}", action),
+                *target,
+                None,
+            );
+        } else {
+            println!("No available apartments to perform action");
+            return;
+        }
     }
 
     fn confess_role(&self) -> Role {

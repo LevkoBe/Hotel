@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use crate::{
+    game_history::GameHistory,
     hotel::Hotel,
     resident::{Resident, ResidentType},
     roles::Role,
@@ -16,6 +17,7 @@ pub struct GameFlow {
     pub current_moving_player: usize,
     pub flow_sequence: FlowSequence,
     pub residents: Vec<Arc<Mutex<Resident>>>,
+    pub game_history: GameHistory,
 }
 
 impl GameFlow {
@@ -43,6 +45,7 @@ impl GameFlow {
             current_moving_player: 0,
             flow_sequence: FlowSequence::Ordered,
             residents: Vec::new(),
+            game_history: GameHistory::new(),
         }
     }
 
@@ -95,10 +98,9 @@ impl GameFlow {
         self.current_state = GameTime::Night;
         let is_human;
         {
-            let cur_player = &self.residents[self.current_moving_player];
-            let resident = cur_player.lock().unwrap();
-            resident.perform_action(&mut self.hotel);
+            let mut resident = self.residents[self.current_moving_player].lock().unwrap();
             is_human = resident.resident_type == ResidentType::Human;
+            resident.perform_action(&mut self.hotel, &mut self.game_history);
         }
         self.current_moving_player = (self.current_moving_player + 1) % self.residents.len();
         if self.current_moving_player == 0 {
@@ -126,7 +128,7 @@ impl GameFlow {
                 self.days_passed += 1;
                 self.current_state = GameTime::Day;
                 println!("It's day time!");
-                self.daily_announcement();
+                println!("{}", self.daily_announcement());
             }
         }
     }
@@ -136,9 +138,11 @@ impl GameFlow {
         false
     }
 
-    pub fn daily_announcement(&self) -> String {
+    pub fn daily_announcement(&mut self) -> String {
         // Daily announcement logic
-        "Daily announcement".to_string()
+        let announcement = self.game_history.retell_last_night(&self.hotel, None);
+        self.game_history.next_day();
+        announcement
     }
 }
 

@@ -1,6 +1,7 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use regex::Regex;
+use std::io;
 use std::sync::{Arc, Mutex};
 use strum::IntoEnumIterator;
 
@@ -32,6 +33,7 @@ pub struct Hotel {
     pub daily_costs: f64,
     pub apartments: Vec<Apartment>,
     pub available_roles: Vec<Role>,
+    pub announcements: Vec<String>,
 }
 
 impl Hotel {
@@ -65,7 +67,43 @@ impl Hotel {
             daily_costs,
             apartments: Hotel::initialize_apartments(num_rooms, rooms_per_story),
             available_roles,
+            announcements: vec![],
         }
+    }
+
+    pub fn get_ready_apartments(&self, own_apartment: Option<usize>) -> Vec<usize> {
+        self.apartments
+            .iter()
+            .filter_map(|apartment| {
+                if apartment.is_opened {
+                    if let Some(own_apartment) = own_apartment {
+                        if apartment.number != own_apartment {
+                            Some(apartment.number)
+                        } else {
+                            None
+                        }
+                    } else {
+                        Some(apartment.number)
+                    }
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
+    pub fn reinitialize(&mut self) {
+        let possible_roles: Vec<Role> = Role::iter().collect();
+        let roles_count = possible_roles.len();
+        let mut available_roles = Vec::new();
+        for i in 0..self.num_rooms {
+            available_roles.push(possible_roles[i % roles_count].clone());
+        }
+        let mut rng = thread_rng();
+        available_roles.shuffle(&mut rng);
+
+        self.apartments = Hotel::initialize_apartments(self.num_rooms, self.rooms_per_story);
+        self.available_roles = available_roles;
     }
 
     pub fn print_hotel(&self, style: &str, destination: Option<usize>, player: Option<&Resident>) {
@@ -86,6 +124,17 @@ impl Hotel {
                 _ => println!("Invalid style"),
             }
         }
+    }
+
+    pub fn announce(&mut self) {
+        let mut announcement = String::new();
+        println!("Please, announce:");
+        io::stdin().read_line(&mut announcement).unwrap();
+        self.announcements.push(announcement);
+    }
+
+    pub fn send_mail(&mut self, apartment: usize, mail: String) {
+        self.apartments[apartment].mails.push(mail);
     }
 
     fn print_detailed(&self, custom_params: &str) {
@@ -153,18 +202,19 @@ impl Hotel {
                 let idx = floor * self.rooms_per_story + room;
 
                 if room == self.elevator_position {
-                    line.push_str("|^v|");
-                } else if idx >= self.apartments.len() {
-                    line.push_str("|--|");
+                    line.push_str("| ^v |");
+                }
+                if idx >= self.apartments.len() {
+                    line.push_str("|   E|");
                 } else {
                     let symbol = if idx == destination {
-                        '*'
-                    } else if idx == player.current_position {
                         '+'
+                    } else if idx == player.current_position {
+                        'x'
                     } else {
-                        ' '
+                        'E'
                     };
-                    line.push_str(&format!("|{:02}{}|", idx, symbol));
+                    line.push_str(&format!("|{:02} {}|", idx, symbol));
                 }
             }
 

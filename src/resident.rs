@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use crate::{
     document::Document,
-    hotel,
+    game_history, hotel,
     roles::Role,
     strategies::{
         _strategy::ResidentStrategy, avenger_strategy::AvengerStrategy,
@@ -14,10 +14,22 @@ use crate::{
     },
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Status {
     Alive,
     Dead,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum SuperStatus {
+    Asleep,         // alive, but sleeps full night
+    Unconscious,    // sleeps night, and day (considered dead)
+    Energized,      // can visit two apartments per move
+    Visionary,      // enlightens with knowledge of one fact
+    Metamorphosing, // changes role temporarily
+    Disinterested,  // person is awake, but does not do the job
+    Aggressive,     // person kills everyone (visited and visitors)
+    None,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -31,7 +43,9 @@ pub struct Resident {
     pub age: usize,
     pub account_balance: f64,
     pub current_position: usize, // apartment
+    pub apartment_number: usize,
     pub status: Status,
+    pub super_status: SuperStatus,
     pub resident_type: ResidentType,
     pub documents: Vec<Document>,
     pub strategy: Arc<dyn ResidentStrategy>,
@@ -51,15 +65,45 @@ impl Resident {
             age,
             account_balance,
             current_position,
+            apartment_number: current_position,
             status: Status::Alive,
+            super_status: SuperStatus::None,
             resident_type,
             documents: Vec::new(),
             strategy,
         }
     }
 
-    pub fn perform_action(&self, hotel: &mut hotel::Hotel) {
-        self.strategy.perform_action(self, hotel);
+    pub fn is_ready(&self) -> bool {
+        self.status == Status::Alive
+            && self.super_status != SuperStatus::Unconscious
+            && self.super_status != SuperStatus::Asleep
+            && self.super_status != SuperStatus::Disinterested
+    }
+
+    pub fn perform_action(
+        &mut self,
+        hotel: &mut hotel::Hotel,
+        history: &mut game_history::GameHistory,
+    ) {
+        if self.status != Status::Alive {
+            println!("Dead are not allowed to move...");
+            return;
+        }
+        if self.super_status != SuperStatus::None {
+            println!("Super status is not None...");
+            // todo!();
+            if self.super_status == SuperStatus::Disinterested
+                || self.super_status == SuperStatus::Asleep
+            {
+                println!("Let's not move, shall we?..");
+                return;
+            }
+        }
+        hotel.apartments[self.current_position].read_mails();
+        let is_human = self.resident_type == ResidentType::Human;
+        self.strategy
+            .perform_action(self.apartment_number, is_human, hotel, history);
     }
 
     pub fn describe(&self) -> String {

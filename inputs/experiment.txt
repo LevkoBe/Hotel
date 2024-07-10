@@ -1,0 +1,11 @@
+rooms 1
+hotel set
+available
+residents settled
+play
+hotel #nst
+move
+move
+
+move
+move

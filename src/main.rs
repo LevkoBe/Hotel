@@ -2,6 +2,7 @@ mod apartment;
 mod debug;
 mod document;
 mod game_flow;
+pub mod game_history;
 mod hotel;
 mod manager;
 mod manager_states;

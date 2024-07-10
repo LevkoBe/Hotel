@@ -66,6 +66,7 @@ impl ManagerStateBehavior for SetUpHotelState {
                 {
                     println!("Please set all hotel properties before finalizing the setup.");
                 } else {
+                    game_flow.hotel.reinitialize();
                     println!("Hotel setup complete. Moving to resident settlement stage.");
                     return HandlingResult::ChangeState;
                 }
