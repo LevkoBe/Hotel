@@ -37,7 +37,10 @@ impl ResidentStrategy for OldWomanStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(old_woman_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(old_woman_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             self.gossip(hotel, *target);
             history.add_action(
                 old_woman_apartment,

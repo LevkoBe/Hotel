@@ -110,7 +110,10 @@ impl ResidentStrategy for KillerStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(killer_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(killer_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             let action = KillerAction::Kill; // Bots always choose to kill, change as needed
             self.perform_killer_action(action.clone(), hotel, *target, killer_apartment);
             history.add_action(

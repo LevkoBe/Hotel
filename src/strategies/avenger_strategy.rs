@@ -91,7 +91,10 @@ impl ResidentStrategy for AvengerStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(avenger_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(avenger_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             let action = if history.has_visited(avenger_apartment, *target) {
                 AvengerAction::Kill
             } else {

@@ -34,7 +34,10 @@ impl ResidentStrategy for ProfessorStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(professor_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(professor_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             self.lecture(hotel, *target);
             history.add_action(
                 professor_apartment,

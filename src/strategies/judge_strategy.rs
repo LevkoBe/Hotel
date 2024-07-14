@@ -34,7 +34,10 @@ impl ResidentStrategy for JudgeStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(judge_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(judge_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             self.judge(hotel, *target);
             history.add_action(
                 judge_apartment,

@@ -60,6 +60,18 @@ impl ManagerStateBehavior for PlayingState {
                 println!("Game paused");
                 return HandlingResult::ChangeState;
             }
+            "reveal" => {
+                for resident in &game_flow.residents {
+                    let resident = resident.lock().unwrap();
+                    println!("{}", resident);
+                }
+            }
+            "whoami" => {
+                let resident = game_flow.residents[game_flow.current_moving_player]
+                    .lock()
+                    .unwrap();
+                println!("{}", resident);
+            }
             "restart" => {
                 println!("Game restarted");
                 return HandlingResult::ResetState;

@@ -34,7 +34,10 @@ impl ResidentStrategy for JanitorStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(janitor_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(janitor_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             self.clean(hotel, *target);
             history.add_action(
                 janitor_apartment,

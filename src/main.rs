@@ -9,6 +9,7 @@ mod manager_states;
 mod resident;
 mod roles;
 pub mod strategies;
+pub mod text_formatters;
 
 use manager::Manager;
 use std::io::{self, Write};

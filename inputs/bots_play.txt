@@ -3,6 +3,7 @@ residents settled
 play
 hotel #nsr
 
+reveal
 move
 move
 move
@@ -27,3 +28,4 @@ move
 move
 move
 move
+reveal

@@ -60,6 +60,8 @@ impl Resident {
         strategy: Arc<dyn ResidentStrategy>,
         resident_type: ResidentType,
     ) -> Resident {
+        let mut documents = Vec::new();
+        documents.push(Document::new(strategy.confess_role(), name.clone(), age));
         Resident {
             name,
             age,
@@ -69,7 +71,7 @@ impl Resident {
             status: Status::Alive,
             super_status: SuperStatus::None,
             resident_type,
-            documents: Vec::new(),
+            documents,
             strategy,
         }
     }
@@ -105,20 +107,28 @@ impl Resident {
         self.strategy
             .perform_action(self.apartment_number, is_human, hotel, history);
     }
+}
 
-    pub fn describe(&self) -> String {
-        format!(
-            "{}, {} y.o., {:?}. Account balance: {}, status: {:?}{}",
-            self.name,
-            self.age,
-            self.resident_type,
-            self.account_balance,
-            self.status,
-            self.documents
-                .iter()
-                .enumerate()
-                .map(|(dx, doc)| format!("\n{}. {}", dx, doc))
-                .collect::<String>()
+use std::fmt;
+
+impl fmt::Display for Resident {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            format!(
+                "{}, {} y.o., {:?}. Account balance: {}, status: {:?}, documents: {}",
+                self.name,
+                self.age,
+                self.resident_type,
+                self.account_balance,
+                self.status,
+                self.documents
+                    .iter()
+                    .enumerate()
+                    .map(|(dx, doc)| format!("\n{}.\n{}", dx, doc))
+                    .collect::<String>()
+            )
         )
     }
 }

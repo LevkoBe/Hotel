@@ -5,6 +5,7 @@ use std::io;
 use std::sync::{Arc, Mutex};
 use strum::IntoEnumIterator;
 
+use crate::text_formatters::format_to_length;
 use crate::{apartment::Apartment, resident::Resident, roles::Role};
 
 const FORMAT_LENGTH_LEFT: usize = 2;
@@ -309,21 +310,5 @@ impl Hotel {
         } else {
             println!("Invalid apartment number.");
         }
-    }
-}
-
-fn format_to_length(s: &String, length: usize) -> String {
-    if s.len() >= length {
-        s.chars().take(length).collect()
-    } else {
-        let padding = length - s.len();
-        let left_padding = padding / 2;
-        let right_padding = padding - left_padding;
-        format!(
-            "{}{}{}",
-            " ".repeat(left_padding),
-            s,
-            " ".repeat(right_padding)
-        )
     }
 }

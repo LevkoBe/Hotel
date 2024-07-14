@@ -34,7 +34,10 @@ impl ResidentStrategy for SwindlerStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel.get_ready_apartments(Some(swindler_apartment)).choose(&mut rand::thread_rng()) {
+        if let Some(target) = hotel
+            .get_ready_apartments(Some(swindler_apartment))
+            .choose(&mut rand::thread_rng())
+        {
             self.swindle(hotel, *target);
             history.add_action(
                 swindler_apartment,
