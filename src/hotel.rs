@@ -1,7 +1,10 @@
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use regex::Regex;
-use std::io;
+use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::{self, Read, Write};
+use std::path::Path;
 use std::sync::{Arc, Mutex};
 use strum::IntoEnumIterator;
 
@@ -13,7 +16,7 @@ const FORMAT_LENGTH_RIGHT: usize = 6;
 const APARTMENT_WIDTH: usize = 10;
 
 #[allow(dead_code)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum BuildingType {
     Rectangular,
     Pyramidal,
@@ -23,6 +26,7 @@ pub enum BuildingType {
 }
 
 #[allow(dead_code)]
+#[derive(Serialize, Deserialize)]
 pub struct Hotel {
     pub id: String,
     pub num_rooms: usize,
@@ -32,8 +36,11 @@ pub struct Hotel {
     pub rooms_per_story: usize,
     pub entrance_fee: f64,
     pub daily_costs: f64,
+    #[serde(skip)]
     pub apartments: Vec<Apartment>,
+    #[serde(skip)]
     pub available_roles: Vec<Role>,
+    #[serde(skip)]
     pub announcements: Vec<String>,
 }
 
@@ -310,5 +317,26 @@ impl Hotel {
         } else {
             println!("Invalid apartment number.");
         }
+    }
+
+    pub fn save(&self) -> io::Result<()> {
+        let path = format!("hotel_configs/{}.json", self.id);
+        let mut file = File::create(path)?;
+        let hotel_data = serde_json::to_string(self)?;
+        write!(file, "{}", hotel_data)?;
+        Ok(())
+    }
+
+    pub fn upload(id: &str) -> Option<Self> {
+        let path = format!("hotel_configs/{}.json", id);
+        if !Path::new(&path).exists() {
+            return None;
+        }
+
+        let mut file = File::open(path).ok()?;
+        let mut hotel_data = String::new();
+        file.read_to_string(&mut hotel_data).ok()?;
+        let hotel: Hotel = serde_json::from_str(&hotel_data).ok()?;
+        Some(hotel)
     }
 }

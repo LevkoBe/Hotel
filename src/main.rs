@@ -9,6 +9,7 @@ mod manager_states;
 mod resident;
 mod roles;
 pub mod strategies;
+pub mod tests;
 pub mod text_formatters;
 
 use manager::Manager;

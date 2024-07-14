@@ -1,3 +1,4 @@
+use crate::hotel::Hotel;
 use crate::{game_flow, hotel};
 
 use super::handling_result::HandlingResult;
@@ -16,6 +17,19 @@ impl SetUpHotelState {
         println!("Entrance fee: {}", hotel.entrance_fee);
         println!("Daily service cost: {}", hotel.daily_costs);
     }
+
+    fn set_hotel_id(&mut self, game_flow: &mut game_flow::GameFlow, id: String) {
+        match Hotel::upload(&id) {
+            Some(hotel) => {
+                println!("Hotel found with ID: {}", hotel.id);
+                game_flow.hotel = hotel;
+            }
+            None => {
+                println!("Hotel ID set to: {}", id);
+                game_flow.hotel.id = id;
+            }
+        }
+    }
 }
 
 impl ManagerStateBehavior for SetUpHotelState {
@@ -30,12 +44,19 @@ impl ManagerStateBehavior for SetUpHotelState {
                 return HandlingResult::ResetState;
             }
             "id" if input.len() == 2 => {
-                // self.id = input[1].to_string();
-                game_flow.hotel.id = input[1].to_string();
-                println!("Hotel ID set to {}", input[1]);
+                self.set_hotel_id(game_flow, input[1].to_string());
             }
+            "save" => match game_flow.hotel.save() {
+                Ok(_) => {
+                    println!("Hotel configuration saved.");
+                }
+                _ => {
+                    println!("Error saving hotel configuration.");
+                }
+            },
             "rooms" if input.len() == 2 => {
-                game_flow.hotel.num_rooms = input[1].parse().unwrap_or(0);
+                let prev_num_rooms = game_flow.hotel.num_rooms;
+                game_flow.hotel.num_rooms = input[1].parse().unwrap_or(prev_num_rooms);
                 println!("Number of rooms set to {}", input[1]);
             }
             "rps" if input.len() == 2 => {
