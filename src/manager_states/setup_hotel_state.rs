@@ -135,15 +135,14 @@ mod tests {
     }
 
     #[test]
-    fn test_set_hotel_id_with_existing_id() {
+    fn test_upload_hotel_info_with_valid_id() {
         let mut manager =
             Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec!["id 123"];
-
+        let commands = vec!["rooms 99", "id 123"];
         run_commands(&mut manager, &commands);
 
-        assert_eq!(manager.game_flow.hotel.num_rooms, 123);
         assert_eq!(manager.game_flow.hotel.id, "123");
+        assert_eq!(manager.game_flow.hotel.num_rooms, 123);
     }
 
     #[test]
@@ -243,6 +242,19 @@ mod tests {
     }
 
     #[test]
+    fn test_initialize_hotel_with_invalid_parameters() {
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let initial_num_rooms = manager.game_flow.hotel.num_rooms;
+        let commands = vec!["id unique969", "rooms many", "hotel set"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.hotel.id, "unique969");
+        assert_eq!(manager.game_flow.hotel.num_rooms, initial_num_rooms);
+    }
+
+    #[test]
     fn test_new_hotel_setup() {
         let mut manager =
             Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
@@ -254,6 +266,25 @@ mod tests {
 
         assert_eq!(manager.game_flow.hotel.num_rooms, initial_num_rooms);
         assert_ne!(manager.game_flow.hotel.num_rooms, 24);
+    }
+
+    #[test]
+    fn test_initialize_hotel_with_valid_parameters() {
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec![
+            "id unique969",
+            "rooms 99",
+            "capital 99999999",
+            "rps 9",
+            "hotel set",
+        ];
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.hotel.id, "unique969");
+        assert_eq!(manager.game_flow.hotel.num_rooms, 99);
+        assert_eq!(manager.game_flow.hotel.capital, 99999999.0);
+        assert_eq!(manager.game_flow.hotel.rooms_per_story, 9);
     }
 
     #[test]
