@@ -66,3 +66,103 @@ impl ManagerStateBehavior for GameState {
         HandlingResult::KeepState
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::path::Path;
+
+    use super::*;
+    use crate::game_flow::FlowSequence;
+    use crate::manager::Manager;
+    use crate::manager_states::manager_state::ManagerState;
+
+    fn run_commands(manager: &mut Manager, commands: &[&str]) {
+        for command in commands {
+            let input: Vec<&str> = command.trim().split_whitespace().collect();
+            if !input.is_empty() {
+                manager.handle_command(&input);
+            }
+        }
+    }
+
+    #[test]
+    fn test_set_game_flow_sequence_ordered() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow ordered"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.flow_sequence, FlowSequence::Ordered);
+    }
+
+    #[test]
+    fn test_set_game_flow_sequence_random() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow random"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.flow_sequence, FlowSequence::Random);
+    }
+
+    #[test]
+    fn test_set_game_flow_sequence_chaotic() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow chaotic"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.flow_sequence, FlowSequence::Chaotic);
+    }
+
+    #[test]
+    fn test_set_game_flow_sequence_alphabetical() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow alphabetical"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.flow_sequence, FlowSequence::Alphabetical);
+    }
+
+    #[test]
+    fn test_set_game_flow_sequence_invalid() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow invalid"];
+
+        run_commands(&mut manager, &commands);
+        // This is a print test and will require manual checking of the output.
+    }
+
+    #[test]
+    fn test_play_command() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["flow ordered", "play", "flow random"];
+
+        run_commands(&mut manager, &commands);
+
+        assert_eq!(manager.game_flow.flow_sequence, FlowSequence::Ordered);
+    }
+
+    #[test]
+    fn test_save_command() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let id = manager.game_flow.hotel.id.clone();
+
+        let commands = vec!["save"];
+
+        run_commands(&mut manager, &commands);
+
+        let path = format!("hotel_configs/{}.json", id);
+        assert!(Path::new(&path).exists());
+    }
+
+    #[test]
+    fn test_help_command() {
+        let mut manager = Manager::new_with_state(ManagerState::Game(Box::new(GameState)));
+        let commands = vec!["help"];
+
+        run_commands(&mut manager, &commands);
+        // This is a print test and will require manual checking of the output.
+    }
+}

@@ -152,7 +152,7 @@ pub enum GameTime {
     Night,
 }
 
-#[derive(EnumIter, Clone, Copy, Debug)]
+#[derive(EnumIter, Clone, Copy, Debug, PartialEq)]
 pub enum FlowSequence {
     Ordered,
     Random,
