@@ -116,13 +116,14 @@ impl ManagerStateBehavior for SetUpHotelState {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use std::path::Path;
 
     use super::*;
-    use crate::{game_flow::GameFlow, manager::Manager, manager_states::manager_state::ManagerState};
+    use crate::{
+        game_flow::GameFlow, manager::Manager, manager_states::manager_state::ManagerState,
+    };
 
     fn run_commands(manager: &mut Manager, commands: &[&str]) {
         for command in commands {
@@ -135,10 +136,9 @@ mod tests {
 
     #[test]
     fn test_set_hotel_id_with_existing_id() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "id 123",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["id 123"];
 
         run_commands(&mut manager, &commands);
 
@@ -148,25 +148,23 @@ mod tests {
 
     #[test]
     fn test_set_hotel_id_with_new_id() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
         let initial_num_rooms = manager.game_flow.hotel.num_rooms;
 
-        let commands = vec![
-            "id new_id",
-            ];
+        let commands = vec!["id new_id"];
 
         run_commands(&mut manager, &commands);
-        
+
         assert_eq!(manager.game_flow.hotel.num_rooms, initial_num_rooms);
         assert_eq!(manager.game_flow.hotel.id, "new_id");
     }
 
     #[test]
     fn test_set_number_of_rooms() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "rooms 42",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["rooms 42"];
 
         run_commands(&mut manager, &commands);
 
@@ -175,10 +173,9 @@ mod tests {
 
     #[test]
     fn test_set_rooms_per_story() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "rps 10",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["rps 10"];
 
         run_commands(&mut manager, &commands);
 
@@ -187,10 +184,9 @@ mod tests {
 
     #[test]
     fn test_set_initial_capital() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "capital 42000",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["capital 42000"];
 
         run_commands(&mut manager, &commands);
 
@@ -199,10 +195,9 @@ mod tests {
 
     #[test]
     fn test_set_entrance_fee() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "fee 42",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["fee 42"];
 
         run_commands(&mut manager, &commands);
 
@@ -211,10 +206,9 @@ mod tests {
 
     #[test]
     fn test_set_daily_service_cost() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
-        let commands = vec![
-            "service 42",
-        ];
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let commands = vec!["service 42"];
 
         run_commands(&mut manager, &commands);
 
@@ -233,17 +227,15 @@ mod tests {
         game_flow.hotel.daily_costs = 200.0;
 
         state.print_hotel_config(&game_flow.hotel);
+        // This is a print test and will require manual checking of the output.
     }
 
     #[test]
     fn test_finalize_hotel_setup() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
 
-        let commands = vec![
-            "rooms 24",
-            "hotel set",
-            "rooms 42",
-        ];
+        let commands = vec!["rooms 24", "hotel set", "rooms 42"];
 
         run_commands(&mut manager, &commands);
 
@@ -252,13 +244,11 @@ mod tests {
 
     #[test]
     fn test_new_hotel_setup() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
         let initial_num_rooms = manager.game_flow.hotel.num_rooms;
 
-        let commands = vec![
-            "rooms 24",
-            "new",
-        ];
+        let commands = vec!["rooms 24", "new"];
 
         run_commands(&mut manager, &commands);
 
@@ -268,27 +258,26 @@ mod tests {
 
     #[test]
     fn test_save_hotel_config() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
         let id = manager.game_flow.hotel.id.clone();
 
-        let commands = vec![
-            "save"
-        ];
+        let commands = vec!["save"];
 
         run_commands(&mut manager, &commands);
-        
+
         let path = format!("hotel_configs/{}.json", id);
         assert!(Path::new(&path).exists());
     }
 
     #[test]
     fn test_help_commands() {
-        let mut manager = Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
+        let mut manager =
+            Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)));
 
-        let commands = vec![
-            "help",
-        ];
+        let commands = vec!["help"];
 
         run_commands(&mut manager, &commands);
+        // This is a print test and will require manual checking of the output.
     }
 }

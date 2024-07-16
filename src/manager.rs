@@ -1,8 +1,10 @@
 use crate::{
-    game_flow::GameFlow, hotel::Hotel, manager_states::{
+    game_flow::GameFlow,
+    hotel::Hotel,
+    manager_states::{
         handling_result::HandlingResult, manager_state::ManagerState, GameState, PlayingState,
         SetUpHotelState, SettleResidentsState,
-    }
+    },
 };
 
 pub struct Manager {
@@ -34,7 +36,7 @@ impl Manager {
         let prev_rooms_per_story = self.game_flow.hotel.rooms_per_story;
         let prev_entrance_fee = self.game_flow.hotel.entrance_fee;
         let prev_daily_costs = self.game_flow.hotel.daily_costs;
-        
+
         self.game_flow.hotel = Hotel::new(
             prev_id,
             prev_num_rooms,
