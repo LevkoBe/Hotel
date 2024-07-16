@@ -18,6 +18,13 @@ impl Manager {
         }
     }
 
+    pub fn new_with_state(state: ManagerState) -> Self {
+        Manager {
+            state,
+            game_flow: GameFlow::new(),
+        }
+    }
+
     pub fn empty_hotel(&mut self) {
         let prev_id = self.game_flow.hotel.id.clone();
         let prev_num_rooms = self.game_flow.hotel.num_rooms;
