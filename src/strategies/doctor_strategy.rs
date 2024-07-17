@@ -1,14 +1,24 @@
 use rand::seq::SliceRandom;
-
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, roles::Role};
+use crate::{game_history, hotel, resident::SuperStatus, roles::Role};
 
 pub struct DoctorStrategy;
 
 impl DoctorStrategy {
-    fn heal(&self, _: &mut hotel::Hotel, target: usize) {
-        println!("Doctor heals the resident in apartment {}", target);
-        // Implement the healing logic
+    fn heal(&self, hotel: &mut hotel::Hotel, target: usize) {
+        if let Some(resident) = &hotel.apartments[target].resident {
+            let mut resident = resident.lock().unwrap();
+            match resident.super_status {
+                SuperStatus::Drugged => {
+                    resident.super_status = SuperStatus::Overdosed;
+                    println!("Doctor heals the resident in apartment {}. They are now Overdosed.", target);
+                }
+                _ => {
+                    resident.super_status = SuperStatus::Drugged;
+                    println!("Doctor heals the resident in apartment {}. They are now Drugged.", target);
+                }
+            }
+        }
     }
 }
 
@@ -23,11 +33,12 @@ impl ResidentStrategy for DoctorStrategy {
         self.heal(hotel, target);
         history.add_action(
             doctor_apartment,
-            std::format!("{:?}", "action"),
+            "Heal".to_string(),
             target,
             None,
         );
     }
+
     fn perform_action_bot(
         &self,
         doctor_apartment: usize,
@@ -41,7 +52,7 @@ impl ResidentStrategy for DoctorStrategy {
             self.heal(hotel, *target);
             history.add_action(
                 doctor_apartment,
-                std::format!("{:?}", "action"),
+                "Heal".to_string(),
                 *target,
                 None,
             );

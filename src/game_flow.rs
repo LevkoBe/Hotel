@@ -95,7 +95,9 @@ impl GameFlow {
 
     pub fn next_turn(&mut self) -> bool {
         // bool(next *human* turn made)
-        self.current_state = GameTime::Night;
+        if self.current_moving_player == 0 {
+            self.switch_day_night();
+        }
         let is_human;
         {
             let mut resident = self.residents[self.current_moving_player].lock().unwrap();
@@ -127,6 +129,10 @@ impl GameFlow {
             GameTime::Night => {
                 self.days_passed += 1;
                 self.current_state = GameTime::Day;
+                for resident in self.residents.iter() {
+                    let mut resident = resident.lock().unwrap();
+                    resident.update_state();
+                }
                 println!("It's day time!");
                 println!("{}", self.daily_announcement());
             }

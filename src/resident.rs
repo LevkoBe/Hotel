@@ -21,7 +21,7 @@ pub enum Status {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum SuperStatus {
+pub enum SuperStatus {  // todo: implement special move logic
     Asleep,         // alive, but sleeps full night
     Unconscious,    // sleeps night, and day (considered dead)
     Energized,      // can visit two apartments per move
@@ -29,7 +29,10 @@ pub enum SuperStatus {
     Metamorphosing, // changes role temporarily
     Disinterested,  // person is awake, but does not do the job
     Aggressive,     // person kills everyone (visited and visitors)
-    None,
+    Wounded,        // person will be dead, if not treated
+    Drugged,        // person will be okay, even if wounded
+    Overdosed,      // person will be dead
+    None,           // person is okay
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -83,6 +86,21 @@ impl Resident {
             && self.super_status != SuperStatus::Disinterested
     }
 
+    pub fn update_state(&mut self) {
+        match self.super_status {
+            SuperStatus::Visionary => {}
+            SuperStatus::Unconscious => {
+                self.super_status = SuperStatus::Asleep;
+            }
+            SuperStatus::Wounded | SuperStatus::Overdosed => {
+                self.status = Status::Dead;
+            }
+            _ => {
+                self.super_status = SuperStatus::None;
+            }
+        }
+    }
+
     pub fn perform_action(
         &mut self,
         hotel: &mut hotel::Hotel,
@@ -133,6 +151,20 @@ impl fmt::Display for Resident {
     }
 }
 
+const NAMES: [&'static str; 50] = [
+    "Alice Johnson", "Bob Smith", "Charlie Brown", "Diana White", "Eve Black",
+    "Frank Green", "Grace Walker", "Hank Hall", "Ivy Adams", "Jack King",
+    "Kathy Scott", "Larry Harris", "Mona Lewis", "Nate Lee", "Olivia Young",
+    "Peter Wright", "Quinn Wood", "Rachel Fisher", "Sam Brooks", "Tina Bell",
+    "Uma Evans", "Victor Moore", "Wendy Clark", "Xander Cole", "Yvonne Price",
+    "Zane Murphy", "Amy Rogers", "Brian Hughes", "Cindy Edwards", "David Turner",
+    "Ella Baker", "Fred Nelson", "Gina Cox", "Harry Carter", "Isla Mitchell",
+    "Jason Parker", "Karen Roberts", "Liam Phillips", "Mia Campbell", "Nick Perez",
+    "Oscar Russell", "Paula Stewart", "Quincy Diaz", "Rebecca Myers", "Steve Ortiz",
+    "Tracy Nguyen", "Ursula Gray", "Vince Simmons", "Wanda Long", "Xenia Foster"
+];
+
+
 pub struct ResidentFactory;
 
 impl ResidentFactory {
@@ -154,7 +186,6 @@ impl ResidentFactory {
             Role::Avenger => Arc::new(AvengerStrategy),
             Role::Judge => Arc::new(JudgeStrategy),
             Role::Professor => Arc::new(ProfessorStrategy),
-            _ => unimplemented!(),
         };
 
         Resident::new(
@@ -167,25 +198,12 @@ impl ResidentFactory {
         )
     }
 
-    pub fn generate_random(apartment: usize) -> Resident {
+    pub fn generate_random(apartment: usize, role: Role) -> Resident {
         let mut rng = rand::thread_rng();
 
-        let names = vec!["Alice", "Bob", "Charlie", "Diana", "Eve"];
-        let name = names[rng.gen_range(0..names.len())].to_string();
+        let name = NAMES[rng.gen_range(0..NAMES.len())].to_string();
         let age = rng.gen_range(18..81);
         let account_balance = rng.gen_range(1000.0..10000.0);
-        let role = match rng.gen_range(0..9) {
-            0 => Role::Killer,
-            1 => Role::Police,
-            2 => Role::Doctor,
-            3 => Role::Janitor,
-            4 => Role::OldWoman,
-            5 => Role::Swindler,
-            6 => Role::Avenger,
-            7 => Role::Judge,
-            8 => Role::Professor,
-            _ => unimplemented!(),
-        };
         Self::create_resident(
             name,
             age,

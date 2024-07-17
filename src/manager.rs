@@ -14,10 +14,7 @@ pub struct Manager {
 
 impl Manager {
     pub fn new() -> Self {
-        Manager {
-            state: ManagerState::SetUpHotel(Box::new(SetUpHotelState)),
-            game_flow: GameFlow::new(),
-        }
+        Manager::new_with_state(ManagerState::SetUpHotel(Box::new(SetUpHotelState)))
     }
 
     pub fn new_with_state(state: ManagerState) -> Self {

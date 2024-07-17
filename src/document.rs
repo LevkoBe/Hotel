@@ -151,7 +151,6 @@ pub fn all_titles(role: &Role) -> Vec<&'static str> {
             "Renowned Astrophysicist",
             "Pioneer in Genetic Engineering",
         ],
-        _ => panic!("Creation of a resident without a role!"),
     }
 }
 
@@ -229,7 +228,6 @@ pub fn all_accomplishments(role: &Role) -> Vec<&'static str> {
             "Keynote speaker at international conferences",
             "Patented 10+ innovations",
         ],
-        _ => panic!("Creation of a resident without a role!"),
     }
 }
 

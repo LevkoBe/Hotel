@@ -1,29 +1,11 @@
+rooms 50
+rps 8
 hotel set
 residents settled
 play
 hotel #nsr
 
 reveal
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
-move
 move
 move
 move

@@ -15,7 +15,6 @@ const FORMAT_LENGTH_LEFT: usize = 2;
 const FORMAT_LENGTH_RIGHT: usize = 6;
 const APARTMENT_WIDTH: usize = 10;
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, Serialize, Deserialize)]
 pub enum BuildingType {
     Rectangular,
@@ -25,7 +24,6 @@ pub enum BuildingType {
     Custom,
 }
 
-#[allow(dead_code)]
 #[derive(Serialize, Deserialize)]
 pub struct Hotel {
     pub id: String,
@@ -55,15 +53,6 @@ impl Hotel {
         entrance_fee: f64,
         daily_costs: f64,
     ) -> Self {
-        let possible_roles: Vec<Role> = Role::iter().collect();
-        let roles_count = possible_roles.len();
-        let mut available_roles = Vec::new();
-        for i in 0..num_rooms {
-            available_roles.push(possible_roles[i % roles_count].clone());
-        }
-        let mut rng = thread_rng();
-        available_roles.shuffle(&mut rng);
-
         Self {
             id,
             num_rooms,
@@ -73,8 +62,8 @@ impl Hotel {
             rooms_per_story,
             entrance_fee,
             daily_costs,
-            apartments: Hotel::initialize_apartments(num_rooms, rooms_per_story),
-            available_roles,
+            apartments: vec![],
+            available_roles: vec![],
             announcements: vec![],
         }
     }
@@ -115,7 +104,8 @@ impl Hotel {
     }
 
     pub fn print_hotel(&self, style: &str, destination: Option<usize>, player: Option<&Resident>) {
-        let re = Regex::new(r"^[#\$atsrnp]{4}$").unwrap();
+        let re = Regex::new(r"^.{4}$").unwrap();    // any style
+        // let re = Regex::new(r"^[#\$atsrnp]{4}$").unwrap();   // some specific info
 
         if re.is_match(style) {
             self.print_detailed(style);
@@ -164,9 +154,9 @@ impl Hotel {
                     line2.push_str("|^v|");
                 }
                 if idx >= self.apartments.len() {
-                    line0.push_str("|--|");
-                    line1.push_str("|--|");
-                    line2.push_str("|--|");
+                    line0.push_str(&format!("|{:=^width$}|", "", width = APARTMENT_WIDTH));
+                    line1.push_str(&format!("|{: ^width$}|", "", width = APARTMENT_WIDTH));
+                    line2.push_str(&format!("|{: ^width$}🚪 |", "", width = APARTMENT_WIDTH - 3));
                 } else {
                     let details = custom_params
                         .chars()
@@ -213,7 +203,7 @@ impl Hotel {
                     line.push_str("| ^v |");
                 }
                 if idx >= self.apartments.len() {
-                    line.push_str("|   E|");
+                    line.push_str("| 🚪 |");
                 } else {
                     let symbol = if idx == destination {
                         '+'
@@ -245,7 +235,7 @@ impl Hotel {
                 'r' => format!("{}", resident.strategy.confess_role()),
                 't' => format!("{:?}", resident.resident_type),
                 'p' => format!("{}", resident.current_position),
-                _ => "------".to_string(),
+                _ => format!("{} {:-^width$}", param, "", width = APARTMENT_WIDTH),
             }
         } else {
             "Vacant".to_string()
