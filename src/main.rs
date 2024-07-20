@@ -4,6 +4,7 @@ mod document;
 mod game_flow;
 pub mod game_history;
 mod hotel;
+pub mod mail;
 mod manager;
 mod manager_states;
 mod resident;

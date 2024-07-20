@@ -3,3 +3,9 @@ unimplemented!()
 history add_action("action") -- for strategies
 remove 'print's -- game logic
 "bodies found in [] who: []"
+current_position
+closed/dead ppl rooms
+clear the console every move
+killer kills someone from the ppl in the apartment
+if let some target { perform action }
+open all the apartments in the morning

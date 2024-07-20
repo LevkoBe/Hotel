@@ -2,12 +2,14 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{self, Read, Write};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use strum::IntoEnumIterator;
 
+use crate::mail::Suspicion;
 use crate::text_formatters::format_to_length;
 use crate::{apartment::Apartment, resident::Resident, roles::Role};
 
@@ -40,6 +42,12 @@ pub struct Hotel {
     pub available_roles: Vec<Role>,
     #[serde(skip)]
     pub announcements: Vec<String>,
+    #[serde(skip)]
+    pub police_suspicions: Vec<Suspicion>,
+    #[serde(skip)]
+    pub investigation_queue: HashMap<usize, Suspicion>,
+    #[serde(skip)]
+    pub credible_sources: Vec<usize>,
 }
 
 impl Hotel {
@@ -65,6 +73,9 @@ impl Hotel {
             apartments: vec![],
             available_roles: vec![],
             announcements: vec![],
+            police_suspicions: vec![],
+            investigation_queue: HashMap::new(),
+            credible_sources: vec![],
         }
     }
 
@@ -104,8 +115,8 @@ impl Hotel {
     }
 
     pub fn print_hotel(&self, style: &str, destination: Option<usize>, player: Option<&Resident>) {
-        let re = Regex::new(r"^.{4}$").unwrap();    // any style
-        // let re = Regex::new(r"^[#\$atsrnp]{4}$").unwrap();   // some specific info
+        let re = Regex::new(r"^.{4}$").unwrap(); // any style
+                                                 // let re = Regex::new(r"^[#\$atsrnp]{4}$").unwrap();   // some specific info
 
         if re.is_match(style) {
             self.print_detailed(style);
@@ -156,7 +167,11 @@ impl Hotel {
                 if idx >= self.apartments.len() {
                     line0.push_str(&format!("|{:=^width$}|", "", width = APARTMENT_WIDTH));
                     line1.push_str(&format!("|{: ^width$}|", "", width = APARTMENT_WIDTH));
-                    line2.push_str(&format!("|{: ^width$}🚪 |", "", width = APARTMENT_WIDTH - 3));
+                    line2.push_str(&format!(
+                        "|{: ^width$}🚪 |",
+                        "",
+                        width = APARTMENT_WIDTH - 3
+                    ));
                 } else {
                     let details = custom_params
                         .chars()

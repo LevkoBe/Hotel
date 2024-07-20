@@ -1,14 +1,38 @@
-use rand::seq::SliceRandom;
+use std::io;
 
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, roles::Role};
+use crate::{game_history, hotel, mail::Suspicion, roles::Role};
 
 pub struct JudgeStrategy;
 
 impl JudgeStrategy {
-    fn judge(&self, _: &mut hotel::Hotel, target: usize) {
-        println!("Judge judges the resident in apartment {}", target);
-        // Implement the judging logic
+    fn vote(
+        &self,
+        suspicion: &mut Suspicion,
+        judge_apartment: usize,
+        vote_for: bool,
+        history: &mut game_history::GameHistory,
+    ) {
+        if vote_for {
+            suspicion.for_votes += 1;
+            println!(
+                "Judge from apartment {} votes for the arrest of the resident in apartment {}",
+                judge_apartment, suspicion.suspected
+            );
+            history.add_action(
+                judge_apartment,
+                format!("Vote for {}", suspicion.suspected),
+                0,
+                None,
+            );
+        } else {
+            suspicion.against_votes += 1;
+            println!(
+                "Judge from apartment {} votes against the arrest of the resident in apartment {}",
+                judge_apartment, suspicion.suspected
+            );
+            history.add_action(judge_apartment, "Vote against".to_string(), 0, None);
+        }
     }
 }
 
@@ -19,35 +43,31 @@ impl ResidentStrategy for JudgeStrategy {
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        let target = self.choose_target(judge_apartment, hotel);
-        self.judge(hotel, target);
-        history.add_action(
-            judge_apartment,
-            std::format!("{:?}", "action"),
-            target,
-            None,
-        );
+        for (target, suspicion) in hotel.investigation_queue.iter_mut() {
+            println!(
+                "Do you vote for the arrest in apartment {}? ('+' if so)",
+                target
+            );
+            let mut vote_input = String::new();
+            io::stdin()
+                .read_line(&mut vote_input)
+                .expect("Failed to read line");
+
+            let vote_for = vote_input.trim().to_lowercase() == "+";
+            self.vote(suspicion, judge_apartment, vote_for, history);
+            history.add_action(judge_apartment, "Vote".to_string(), 0, None);
+        }
     }
+
     fn perform_action_bot(
         &self,
         judge_apartment: usize,
         hotel: &mut hotel::Hotel,
         history: &mut game_history::GameHistory,
     ) {
-        if let Some(target) = hotel
-            .get_ready_apartments(Some(judge_apartment))
-            .choose(&mut rand::thread_rng())
-        {
-            self.judge(hotel, *target);
-            history.add_action(
-                judge_apartment,
-                std::format!("{:?}", "action"),
-                *target,
-                None,
-            );
-        } else {
-            println!("No available apartments to perform action");
-            return;
+        for (_, suspicion) in hotel.investigation_queue.iter_mut() {
+            let vote_for = rand::random::<f32>() > 0.2; // biased
+            self.vote(suspicion, judge_apartment, vote_for, history);
         }
     }
 

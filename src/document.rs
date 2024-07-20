@@ -46,11 +46,11 @@ impl PhotoCreator {
 
 #[derive(Debug, Clone)]
 pub struct Document {
-    role: Role,
-    name: String,
-    year_of_birth: usize,
-    title: String,
-    accomplishments: Vec<String>,
+    pub role: Role,
+    pub name: String,
+    pub year_of_birth: usize,
+    pub title: String,
+    pub accomplishments: Vec<String>,
 }
 
 impl Document {

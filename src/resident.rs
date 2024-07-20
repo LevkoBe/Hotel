@@ -21,7 +21,8 @@ pub enum Status {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub enum SuperStatus {  // todo: implement special move logic
+pub enum SuperStatus {
+    // todo: implement special move logic
     Asleep,         // alive, but sleeps full night
     Unconscious,    // sleeps night, and day (considered dead)
     Energized,      // can visit two apartments per move
@@ -29,6 +30,7 @@ pub enum SuperStatus {  // todo: implement special move logic
     Metamorphosing, // changes role temporarily
     Disinterested,  // person is awake, but does not do the job
     Aggressive,     // person kills everyone (visited and visitors)
+    Arrested,       // person is unreachable
     Wounded,        // person will be dead, if not treated
     Drugged,        // person will be okay, even if wounded
     Overdosed,      // person will be dead
@@ -152,18 +154,57 @@ impl fmt::Display for Resident {
 }
 
 const NAMES: [&'static str; 50] = [
-    "Alice Johnson", "Bob Smith", "Charlie Brown", "Diana White", "Eve Black",
-    "Frank Green", "Grace Walker", "Hank Hall", "Ivy Adams", "Jack King",
-    "Kathy Scott", "Larry Harris", "Mona Lewis", "Nate Lee", "Olivia Young",
-    "Peter Wright", "Quinn Wood", "Rachel Fisher", "Sam Brooks", "Tina Bell",
-    "Uma Evans", "Victor Moore", "Wendy Clark", "Xander Cole", "Yvonne Price",
-    "Zane Murphy", "Amy Rogers", "Brian Hughes", "Cindy Edwards", "David Turner",
-    "Ella Baker", "Fred Nelson", "Gina Cox", "Harry Carter", "Isla Mitchell",
-    "Jason Parker", "Karen Roberts", "Liam Phillips", "Mia Campbell", "Nick Perez",
-    "Oscar Russell", "Paula Stewart", "Quincy Diaz", "Rebecca Myers", "Steve Ortiz",
-    "Tracy Nguyen", "Ursula Gray", "Vince Simmons", "Wanda Long", "Xenia Foster"
+    "Alice Johnson",
+    "Bob Smith",
+    "Charlie Brown",
+    "Diana White",
+    "Eve Black",
+    "Frank Green",
+    "Grace Walker",
+    "Hank Hall",
+    "Ivy Adams",
+    "Jack King",
+    "Kathy Scott",
+    "Larry Harris",
+    "Mona Lewis",
+    "Nate Lee",
+    "Olivia Young",
+    "Peter Wright",
+    "Quinn Wood",
+    "Rachel Fisher",
+    "Sam Brooks",
+    "Tina Bell",
+    "Uma Evans",
+    "Victor Moore",
+    "Wendy Clark",
+    "Xander Cole",
+    "Yvonne Price",
+    "Zane Murphy",
+    "Amy Rogers",
+    "Brian Hughes",
+    "Cindy Edwards",
+    "David Turner",
+    "Ella Baker",
+    "Fred Nelson",
+    "Gina Cox",
+    "Harry Carter",
+    "Isla Mitchell",
+    "Jason Parker",
+    "Karen Roberts",
+    "Liam Phillips",
+    "Mia Campbell",
+    "Nick Perez",
+    "Oscar Russell",
+    "Paula Stewart",
+    "Quincy Diaz",
+    "Rebecca Myers",
+    "Steve Ortiz",
+    "Tracy Nguyen",
+    "Ursula Gray",
+    "Vince Simmons",
+    "Wanda Long",
+    "Xenia Foster",
 ];
-
 
 pub struct ResidentFactory;
 

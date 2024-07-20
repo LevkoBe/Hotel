@@ -1,6 +1,6 @@
-use rand::seq::SliceRandom;
 use super::_strategy::ResidentStrategy;
 use crate::{game_history, hotel, resident::SuperStatus, roles::Role};
+use rand::seq::SliceRandom;
 
 pub struct DoctorStrategy;
 
@@ -11,11 +11,17 @@ impl DoctorStrategy {
             match resident.super_status {
                 SuperStatus::Drugged => {
                     resident.super_status = SuperStatus::Overdosed;
-                    println!("Doctor heals the resident in apartment {}. They are now Overdosed.", target);
+                    println!(
+                        "Doctor heals the resident in apartment {}. They are now Overdosed.",
+                        target
+                    );
                 }
                 _ => {
                     resident.super_status = SuperStatus::Drugged;
-                    println!("Doctor heals the resident in apartment {}. They are now Drugged.", target);
+                    println!(
+                        "Doctor heals the resident in apartment {}. They are now Drugged.",
+                        target
+                    );
                 }
             }
         }
@@ -31,12 +37,7 @@ impl ResidentStrategy for DoctorStrategy {
     ) {
         let target = self.choose_target(doctor_apartment, hotel);
         self.heal(hotel, target);
-        history.add_action(
-            doctor_apartment,
-            "Heal".to_string(),
-            target,
-            None,
-        );
+        history.add_action(doctor_apartment, "Heal".to_string(), target, None);
     }
 
     fn perform_action_bot(
@@ -50,12 +51,7 @@ impl ResidentStrategy for DoctorStrategy {
             .choose(&mut rand::thread_rng())
         {
             self.heal(hotel, *target);
-            history.add_action(
-                doctor_apartment,
-                "Heal".to_string(),
-                *target,
-                None,
-            );
+            history.add_action(doctor_apartment, "Heal".to_string(), *target, None);
         } else {
             println!("No available apartments to perform action");
             return;
