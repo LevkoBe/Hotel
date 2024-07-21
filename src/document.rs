@@ -44,7 +44,7 @@ impl PhotoCreator {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Document {
     pub role: Role,
     pub name: String,
@@ -111,7 +111,7 @@ pub fn all_titles(role: &Role) -> Vec<&'static str> {
             "Sanitation Expert",
             "Biohazard Remediation Technician",
         ],
-        Role::OldWoman => vec![
+        Role::OldLady => vec![
             "Neighborhood Watch Leader",
             "Veteran Community Observer",
             "Senior Intelligence Gatherer",
@@ -188,7 +188,7 @@ pub fn all_accomplishments(role: &Role) -> Vec<&'static str> {
             "Awarded Employee of the Year",
             "Expert in facility management",
         ],
-        Role::OldWoman => vec![
+        Role::OldLady => vec![
             "Gathered crucial information leading to arrests",
             "Recognized as a pillar of the community",
             "Collected extensive local history records",
