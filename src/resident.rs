@@ -3,7 +3,8 @@ use std::sync::Arc;
 
 use crate::{
     document::Document,
-    game_history, hotel,
+    game_history,
+    hotel::Hotel,
     roles::Role,
     strategies::{
         _strategy::ResidentStrategy, avenger_strategy::AvengerStrategy,
@@ -43,6 +44,7 @@ pub enum ResidentType {
     Bot,
 }
 
+#[derive(Clone)]
 pub struct Resident {
     pub name: String,
     pub age: usize,
@@ -79,6 +81,13 @@ impl Resident {
         }
     }
 
+    pub fn copy_fields(&mut self, other: Resident) {
+        self.account_balance = other.account_balance;
+        self.status = other.status;
+        self.super_status = other.super_status;
+        self.documents = other.documents;
+    }
+
     pub fn is_ready(&self) -> bool {
         self.status == Status::Alive
             && self.super_status != SuperStatus::Unconscious
@@ -101,11 +110,7 @@ impl Resident {
         }
     }
 
-    pub fn perform_action(
-        &mut self,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
-    ) {
+    pub fn perform_action(&mut self, hotel: &mut Hotel, history: &mut game_history::GameHistory) {
         if self.status != Status::Alive {
             println!("Dead are not allowed to move...");
             return;
@@ -121,9 +126,10 @@ impl Resident {
             }
         }
         hotel.apartments[self.apartment_number].read_mails();
-        let is_human = self.resident_type == ResidentType::Human;
+        let mut self_clone = self.clone();
         self.strategy
-            .perform_action(self.apartment_number, is_human, hotel, history);
+            .perform_action(&mut self_clone, hotel, history);
+        self.copy_fields(self_clone);
     }
 }
 

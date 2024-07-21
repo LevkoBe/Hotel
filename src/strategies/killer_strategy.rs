@@ -5,7 +5,12 @@ use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, resident::Status, roles::Role};
+use crate::{
+    game_history::GameHistory,
+    hotel::Hotel,
+    resident::{Resident, Status},
+    roles::Role,
+};
 
 #[derive(EnumIter, Debug, Clone)]
 pub enum KillerAction {
@@ -47,9 +52,9 @@ impl KillerStrategy {
     fn perform_killer_action(
         &self,
         action: KillerAction,
-        hotel: &mut hotel::Hotel,
+        hotel: &mut Hotel,
         target: usize,
-        killer: usize,
+        killer: &mut Resident,
     ) {
         match action {
             KillerAction::Kill => {
@@ -77,12 +82,6 @@ impl KillerStrategy {
                     let mut res = target_resident.lock().unwrap();
                     let money = res.account_balance;
                     res.account_balance = 0.0;
-                    let mut killer = hotel.apartments[killer]
-                        .resident
-                        .as_ref()
-                        .unwrap()
-                        .lock()
-                        .unwrap();
                     killer.account_balance += money;
                 }
                 // Implement the rob logic
@@ -94,28 +93,30 @@ impl KillerStrategy {
 impl ResidentStrategy for KillerStrategy {
     fn perform_action_human(
         &self,
-        killer_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let killer_apartment = performer.apartment_number;
         let target = self.choose_target(killer_apartment, hotel);
         let action = self.choose_action();
-        self.perform_killer_action(action.clone(), hotel, target, killer_apartment);
+        self.perform_killer_action(action.clone(), hotel, target, performer);
         history.add_action(killer_apartment, std::format!("{:?}", action), target, None);
     }
 
     fn perform_action_bot(
         &self,
-        killer_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let killer_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(killer_apartment))
             .choose(&mut rand::thread_rng())
         {
             let action = KillerAction::Kill; // Bots always choose to kill, change as needed
-            self.perform_killer_action(action.clone(), hotel, *target, killer_apartment);
+            self.perform_killer_action(action.clone(), hotel, *target, performer);
             history.add_action(
                 killer_apartment,
                 std::format!("{:?}", action),

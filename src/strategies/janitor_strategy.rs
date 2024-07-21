@@ -1,11 +1,11 @@
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, roles::Role};
+use crate::{game_history::GameHistory, hotel::Hotel, resident::Resident, roles::Role};
 use rand::seq::SliceRandom;
 
 pub struct JanitorStrategy;
 
 impl JanitorStrategy {
-    fn clean(&self, hotel: &mut hotel::Hotel, target: usize) {
+    fn clean(&self, hotel: &mut Hotel, target: usize) {
         println!("Janitor cleans the resident's apartment {}", target);
 
         if let Some(apartment) = hotel.apartments.get_mut(target) {
@@ -24,10 +24,11 @@ impl JanitorStrategy {
 impl ResidentStrategy for JanitorStrategy {
     fn perform_action_human(
         &self,
-        janitor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let janitor_apartment = performer.apartment_number;
         let target = self.choose_target(janitor_apartment, hotel);
         self.clean(hotel, target);
         history.add_action(janitor_apartment, "Clean".to_string(), target, None);
@@ -35,10 +36,11 @@ impl ResidentStrategy for JanitorStrategy {
 
     fn perform_action_bot(
         &self,
-        janitor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let janitor_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(janitor_apartment))
             .choose(&mut rand::thread_rng())

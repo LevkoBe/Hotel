@@ -1,4 +1,4 @@
-use crate::{hotel, resident::Resident};
+use crate::{hotel::Hotel, resident::Resident};
 use std::sync::MutexGuard;
 
 #[derive(Debug)]
@@ -38,11 +38,11 @@ impl GameHistory {
         });
     }
 
-    pub fn retell_all_history(&self, hotel: &hotel::Hotel, format: Option<&str>) -> String {
+    pub fn retell_all_history(&self, hotel: &Hotel, format: Option<&str>) -> String {
         self.retell_history(hotel, format, None)
     }
 
-    pub fn retell_last_night(&self, hotel: &hotel::Hotel, format: Option<&str>) -> String {
+    pub fn retell_last_night(&self, hotel: &Hotel, format: Option<&str>) -> String {
         if self.actions.is_empty() {
             return "Nothing happened?!?".to_string();
         }
@@ -51,7 +51,7 @@ impl GameHistory {
 
     fn retell_history(
         &self,
-        hotel: &hotel::Hotel,
+        hotel: &Hotel,
         format: Option<&str>,
         day_filter: Option<usize>,
     ) -> String {

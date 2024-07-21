@@ -1,13 +1,13 @@
 use std::io;
 
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::{game_flow, hotel};
+use crate::{game_flow, hotel::Hotel};
 
 #[derive(Clone)]
 pub struct PlayingState;
 
 impl PlayingState {
-    fn print_hotel(&self, hotel: &hotel::Hotel, style: &str) {
+    fn print_hotel(&self, hotel: &Hotel, style: &str) {
         hotel.print_hotel(style, None, None);
     }
 

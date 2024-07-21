@@ -1,7 +1,13 @@
 use std::io;
 
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, mail::Suspicion, roles::Role};
+use crate::{
+    game_history::{self, GameHistory},
+    hotel::Hotel,
+    mail::Suspicion,
+    resident::Resident,
+    roles::Role,
+};
 
 pub struct JudgeStrategy;
 
@@ -39,10 +45,11 @@ impl JudgeStrategy {
 impl ResidentStrategy for JudgeStrategy {
     fn perform_action_human(
         &self,
-        judge_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let judge_apartment = performer.apartment_number;
         for (target, suspicion) in hotel.investigation_queue.iter_mut() {
             println!(
                 "Do you vote for the arrest in apartment {}? ('+' if so)",
@@ -61,10 +68,11 @@ impl ResidentStrategy for JudgeStrategy {
 
     fn perform_action_bot(
         &self,
-        judge_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let judge_apartment = performer.apartment_number;
         for (_, suspicion) in hotel.investigation_queue.iter_mut() {
             let vote_for = rand::random::<f32>() > 0.2; // biased
             self.vote(suspicion, judge_apartment, vote_for, history);

@@ -1,11 +1,13 @@
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, mail::Suspicion, roles::Role};
+use crate::{
+    game_history::GameHistory, hotel::Hotel, mail::Suspicion, resident::Resident, roles::Role,
+};
 use rand::seq::SliceRandom;
 
 pub struct PoliceStrategy;
 
 impl PoliceStrategy {
-    fn investigate(&self, hotel: &mut hotel::Hotel, police_apartment: usize, target: usize) {
+    fn investigate(&self, hotel: &mut Hotel, police_apartment: usize, target: usize) {
         println!("Police investigates the resident in apartment {}", target);
 
         if let Some(apartment) = hotel.apartments.get_mut(target) {
@@ -59,10 +61,11 @@ impl PoliceStrategy {
 impl ResidentStrategy for PoliceStrategy {
     fn perform_action_human(
         &self,
-        police_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let police_apartment = performer.apartment_number;
         let target = self.choose_target(police_apartment, hotel);
         self.investigate(hotel, police_apartment, target);
         history.add_action(police_apartment, "Investigate".to_string(), target, None);
@@ -70,10 +73,11 @@ impl ResidentStrategy for PoliceStrategy {
 
     fn perform_action_bot(
         &self,
-        police_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let police_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(police_apartment))
             .choose(&mut rand::thread_rng())

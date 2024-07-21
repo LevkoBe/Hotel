@@ -1,8 +1,10 @@
 use super::_strategy::ResidentStrategy;
 use crate::{
     document::Document,
-    game_history, hotel,
+    game_history::GameHistory,
+    hotel::{self, Hotel},
     mail::Suspicion,
+    resident::Resident,
     roles::Role,
 };
 use rand::{seq::SliceRandom, Rng};
@@ -86,6 +88,18 @@ impl SwindlerStrategy {
         }
     }
 
+    fn take_swindler_documents_and_money(
+        &self,
+        swindler: &mut Resident,
+        combined_documents: &mut Vec<Document>,
+        combined_money: &mut f64,
+    ) {
+        *combined_money += swindler.account_balance;
+        combined_documents.extend(swindler.documents.clone());
+        swindler.account_balance = 0.0;
+        swindler.documents.clear();
+    }
+
     fn update_resident(
         &self,
         hotel: &mut hotel::Hotel,
@@ -93,16 +107,21 @@ impl SwindlerStrategy {
         documents: Vec<Document>,
         money: f64,
     ) {
-        if let Some(swindler_apartment) = hotel.apartments.get_mut(apartment) {
-            if let Some(swindler_resident) = &swindler_apartment.resident {
-                let mut swindler_resident = swindler_resident.lock().unwrap();
-                swindler_resident.documents = documents;
-                swindler_resident.account_balance = money;
+        if let Some(apartment) = hotel.apartments.get_mut(apartment) {
+            if let Some(resident) = &apartment.resident {
+                let mut resident = resident.lock().unwrap();
+                resident.documents = documents;
+                resident.account_balance = money;
             }
         }
     }
 
-    fn swindle_human(&self, hotel: &mut hotel::Hotel, target: usize, swindler_apartment: usize) {
+    fn update_swindler(&self, swindler: &mut Resident, documents: Vec<Document>, money: f64) {
+        swindler.documents = documents;
+        swindler.account_balance = money;
+    }
+
+    fn swindle_human(&self, hotel: &mut hotel::Hotel, target: usize, swindler: &mut Resident) {
         fn ask_user_which_documents_to_take(combined_documents: &Vec<Document>) -> Vec<Document> {
             let mut take_documents: Vec<_> = vec![];
             for doc in combined_documents {
@@ -135,14 +154,17 @@ impl SwindlerStrategy {
         let mut combined_documents: Vec<Document> = vec![];
         let mut combined_money = 0.0;
 
-        for apartment in [target, swindler_apartment] {
-            self.take_resident_documents_and_money(
-                hotel,
-                apartment,
-                &mut combined_documents,
-                &mut combined_money,
-            );
-        }
+        self.take_resident_documents_and_money(
+            hotel,
+            target,
+            &mut combined_documents,
+            &mut combined_money,
+        );
+        self.take_swindler_documents_and_money(
+            swindler,
+            &mut combined_documents,
+            &mut combined_money,
+        );
         let take_documents = ask_user_which_documents_to_take(&combined_documents);
         let take_money = ask_user_how_much_money_to_take(&combined_money);
 
@@ -154,10 +176,10 @@ impl SwindlerStrategy {
         let resident_money = combined_money - take_money;
 
         self.update_resident(hotel, target, resident_documents, resident_money);
-        self.update_resident(hotel, swindler_apartment, take_documents, take_money);
+        self.update_swindler(swindler, take_documents, take_money);
     }
 
-    fn swindle_bot(&self, hotel: &mut hotel::Hotel, target: usize, swindler_apartment: usize) {
+    fn swindle_bot(&self, hotel: &mut hotel::Hotel, target: usize, swindler: &mut Resident) {
         println!("Swindler swindles the resident in apartment {}", target);
         let mut combined_documents: Vec<Document> = vec![];
         let mut combined_money = 0.0;
@@ -176,14 +198,18 @@ impl SwindlerStrategy {
         };
 
         // Collect documents and money from both the target and swindler's apartments
-        for apartment in [target, swindler_apartment] {
-            self.take_resident_documents_and_money(
-                hotel,
-                apartment,
-                &mut combined_documents,
-                &mut combined_money,
-            );
-        }
+        self.take_resident_documents_and_money(
+            hotel,
+            target,
+            &mut combined_documents,
+            &mut combined_money,
+        );
+
+        self.take_swindler_documents_and_money(
+            swindler,
+            &mut combined_documents,
+            &mut combined_money,
+        );
 
         if !combined_documents.is_empty() {
             // Sort documents by order of innocence (0th = most innocent)
@@ -219,7 +245,7 @@ impl SwindlerStrategy {
                     for doc in &combined_documents {
                         if doc.role == Role::Killer {
                             let suspicion = Suspicion {
-                                from: swindler_apartment,
+                                from: swindler.apartment_number,
                                 suspected: target,
                                 description: format!(
                                     "Swindler informs about a killer in apartment {}",
@@ -252,41 +278,55 @@ impl SwindlerStrategy {
                 }
             }
         }
+        take_money = if take_money > 0.0 {
+            take_money
+        } else {
+            combined_money * rand::random::<f64>()
+        };
 
+        let left_documents = combined_documents
+            .iter()
+            .filter(|d| !take_documents.contains(d))
+            .cloned()
+            .collect();
+        let left_money = combined_money - take_money;
         // Update the residents with the new documents and money
         self.update_resident(
             hotel,
             target,
-            combined_documents,
-            combined_money - take_money,
+            left_documents,
+            left_money,
         );
-        self.update_resident(hotel, swindler_apartment, take_documents, take_money);
+
+        self.update_swindler(swindler, take_documents, take_money);
     }
 }
 
 impl ResidentStrategy for SwindlerStrategy {
     fn perform_action_human(
         &self,
-        swindler_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let swindler_apartment = performer.apartment_number;
         let target = self.choose_target(swindler_apartment, hotel);
-        self.swindle_human(hotel, target, swindler_apartment);
+        self.swindle_human(hotel, target, performer);
         history.add_action(swindler_apartment, "Swindle".to_string(), target, None);
     }
 
     fn perform_action_bot(
         &self,
-        swindler_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let swindler_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(swindler_apartment))
             .choose(&mut rand::thread_rng())
         {
-            self.swindle_bot(hotel, *target, swindler_apartment);
+            self.swindle_bot(hotel, *target, performer);
             history.add_action(swindler_apartment, "Swindle".to_string(), *target, None);
         } else {
             println!("No available apartments to perform action");

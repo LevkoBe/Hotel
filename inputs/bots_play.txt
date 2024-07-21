@@ -4,9 +4,11 @@ hotel set
 residents settled
 play
 hotel #nsr
+hotel #ns$
 
 move
 move
 move
 move
 hotel #nsr
+hotel #ns$

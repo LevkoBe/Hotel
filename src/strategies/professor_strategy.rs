@@ -1,12 +1,12 @@
 use rand::seq::SliceRandom;
 
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, roles::Role};
+use crate::{game_history::GameHistory, hotel::Hotel, resident::Resident, roles::Role};
 
 pub struct ProfessorStrategy;
 
 impl ProfessorStrategy {
-    fn lecture(&self, _: &mut hotel::Hotel, target: usize) {
+    fn lecture(&self, _: &mut Hotel, target: usize) {
         println!("Professor lectures the resident in apartment {}", target);
         // Implement the lecture logic
     }
@@ -15,10 +15,11 @@ impl ProfessorStrategy {
 impl ResidentStrategy for ProfessorStrategy {
     fn perform_action_human(
         &self,
-        professor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let professor_apartment = performer.apartment_number;
         let target = self.choose_target(professor_apartment, hotel);
         self.lecture(hotel, target);
         history.add_action(
@@ -30,10 +31,11 @@ impl ResidentStrategy for ProfessorStrategy {
     }
     fn perform_action_bot(
         &self,
-        professor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let professor_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(professor_apartment))
             .choose(&mut rand::thread_rng())

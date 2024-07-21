@@ -1,11 +1,16 @@
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, resident::SuperStatus, roles::Role};
+use crate::{
+    game_history::GameHistory,
+    hotel::Hotel,
+    resident::{Resident, SuperStatus},
+    roles::Role,
+};
 use rand::seq::SliceRandom;
 
 pub struct DoctorStrategy;
 
 impl DoctorStrategy {
-    fn heal(&self, hotel: &mut hotel::Hotel, target: usize) {
+    fn heal(&self, hotel: &mut Hotel, target: usize) {
         if let Some(resident) = &hotel.apartments[target].resident {
             let mut resident = resident.lock().unwrap();
             match resident.super_status {
@@ -31,10 +36,11 @@ impl DoctorStrategy {
 impl ResidentStrategy for DoctorStrategy {
     fn perform_action_human(
         &self,
-        doctor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let doctor_apartment = performer.apartment_number;
         let target = self.choose_target(doctor_apartment, hotel);
         self.heal(hotel, target);
         history.add_action(doctor_apartment, "Heal".to_string(), target, None);
@@ -42,10 +48,11 @@ impl ResidentStrategy for DoctorStrategy {
 
     fn perform_action_bot(
         &self,
-        doctor_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let doctor_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(doctor_apartment))
             .choose(&mut rand::thread_rng())

@@ -1,5 +1,5 @@
+use crate::game_flow;
 use crate::hotel::Hotel;
-use crate::{game_flow, hotel};
 
 use super::handling_result::HandlingResult;
 use super::manager_state_behavior::ManagerStateBehavior;
@@ -8,7 +8,7 @@ use super::manager_state_behavior::ManagerStateBehavior;
 pub struct SetUpHotelState;
 
 impl SetUpHotelState {
-    fn print_hotel_config(&self, hotel: &hotel::Hotel) {
+    fn print_hotel_config(&self, hotel: &Hotel) {
         println!("Current hotel configuration:");
         println!("ID: {}", hotel.id);
         println!("Number of rooms: {}", hotel.num_rooms);

@@ -1,5 +1,5 @@
 use super::{handling_result::HandlingResult, manager_state_behavior::ManagerStateBehavior};
-use crate::{game_flow, hotel, resident::ResidentFactory};
+use crate::{game_flow, hotel::Hotel, resident::ResidentFactory};
 
 #[derive(Clone)]
 pub struct SettleResidentsState;
@@ -7,7 +7,7 @@ pub struct SettleResidentsState;
 impl SettleResidentsState {
     pub fn add_resident(
         &self,
-        hotel: &mut hotel::Hotel,
+        hotel: &mut Hotel,
         name: String,
         age: usize,
         account_balance: f64,
@@ -42,7 +42,7 @@ impl SettleResidentsState {
         }
     }
 
-    pub fn settle_remaining_residents(&self, hotel: &mut hotel::Hotel) {
+    pub fn settle_remaining_residents(&self, hotel: &mut Hotel) {
         while hotel.available_rooms_count() > 0 {
             if let Some(next_available_room) = hotel.find_next_available_room() {
                 if let Some(role) = hotel.random_available_role() {

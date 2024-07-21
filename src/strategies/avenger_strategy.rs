@@ -3,8 +3,8 @@ use std::io::{self, Write};
 use strum_macros::EnumIter;
 
 use super::_strategy::ResidentStrategy;
-use crate::resident::SuperStatus;
-use crate::{game_history::GameHistory, hotel};
+use crate::game_history::GameHistory;
+use crate::resident::{Resident, SuperStatus};
 use crate::{hotel::Hotel, resident::Status, roles::Role};
 
 #[derive(EnumIter, Debug, Clone)]
@@ -70,10 +70,11 @@ impl AvengerStrategy {
 impl ResidentStrategy for AvengerStrategy {
     fn perform_action_human(
         &self,
-        avenger_apartment: usize,
-        hotel: &mut hotel::Hotel,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
         history: &mut GameHistory,
     ) {
+        let avenger_apartment = performer.apartment_number;
         let target = self.choose_target(avenger_apartment, hotel);
         let action = self.choose_action(avenger_apartment, target, history);
         self.perform_avenger_action(action.clone(), hotel, target);
@@ -87,10 +88,11 @@ impl ResidentStrategy for AvengerStrategy {
 
     fn perform_action_bot(
         &self,
-        avenger_apartment: usize,
-        hotel: &mut hotel::Hotel,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
         history: &mut GameHistory,
     ) {
+        let avenger_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(avenger_apartment))
             .choose(&mut rand::thread_rng())

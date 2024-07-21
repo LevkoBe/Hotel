@@ -1,37 +1,42 @@
-use crate::{game_history, hotel, roles::Role};
+use crate::{
+    game_history,
+    hotel::Hotel,
+    resident::{Resident, ResidentType},
+    roles::Role,
+};
 use std::io::{self, Write};
 
 pub trait ResidentStrategy: Send + Sync {
     fn perform_action(
         &self,
-        performer_apartment: usize,
-        is_human: bool,
-        hotel: &mut hotel::Hotel,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
         history: &mut game_history::GameHistory,
     ) {
+        let is_human = performer.resident_type == ResidentType::Human;
         if is_human {
-            self.perform_action_human(performer_apartment, hotel, history);
+            self.perform_action_human(performer, hotel, history);
         } else {
-            self.perform_action_bot(performer_apartment, hotel, history);
+            self.perform_action_bot(performer, hotel, history);
         }
     }
 
     fn perform_action_human(
         &self,
-        performer_apartment: usize,
-        hotel: &mut hotel::Hotel,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
         history: &mut game_history::GameHistory,
     );
     fn perform_action_bot(
         &self,
-        performer_apartment: usize,
-        hotel: &mut hotel::Hotel,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
         history: &mut game_history::GameHistory,
     );
 
     fn confess_role(&self) -> Role;
 
-    fn choose_target(&self, own_apartment: usize, hotel: &mut hotel::Hotel) -> usize {
+    fn choose_target(&self, own_apartment: usize, hotel: &mut Hotel) -> usize {
         let available_apartments = hotel.available_rooms();
         println!(
             "Available apartments are: {}",

@@ -1,11 +1,11 @@
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, roles::Role};
+use crate::{game_history::GameHistory, hotel::Hotel, resident::Resident, roles::Role};
 use rand::seq::SliceRandom;
 
 pub struct OldLadyStrategy;
 
 impl OldLadyStrategy {
-    fn pay_visit(&self, hotel: &mut hotel::Hotel, old_lady_apartment: usize, target: usize) {
+    fn pay_visit(&self, hotel: &mut Hotel, old_lady_apartment: usize, target: usize) {
         println!(
             "Old Lady pays a visit about the resident in apartment {}",
             target
@@ -30,10 +30,11 @@ impl OldLadyStrategy {
 impl ResidentStrategy for OldLadyStrategy {
     fn perform_action_human(
         &self,
-        old_lady_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let old_lady_apartment = performer.apartment_number;
         let target = self.choose_target(old_lady_apartment, hotel);
         self.pay_visit(hotel, old_lady_apartment, target);
         history.add_action(old_lady_apartment, "pay_visit".to_string(), target, None);
@@ -41,10 +42,11 @@ impl ResidentStrategy for OldLadyStrategy {
 
     fn perform_action_bot(
         &self,
-        old_lady_apartment: usize,
-        hotel: &mut hotel::Hotel,
-        history: &mut game_history::GameHistory,
+        performer: &mut Resident,
+        hotel: &mut Hotel,
+        history: &mut GameHistory,
     ) {
+        let old_lady_apartment = performer.apartment_number;
         if let Some(target) = hotel
             .get_ready_apartments(Some(old_lady_apartment))
             .choose(&mut rand::thread_rng())
