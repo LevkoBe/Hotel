@@ -125,7 +125,7 @@ impl Hotel {
                 "default" => self.print_detailed("#nsr"),
                 "move" => {
                     if let (Some(dest), Some(player)) = (destination, player) {
-                        self.print_move(dest, player);
+                        self.print_move(dest, player.apartment_number);
                     } else {
                         println!("Destination and player are required for 'move' style");
                     }
@@ -203,7 +203,8 @@ impl Hotel {
         println!("{}", output);
     }
 
-    fn print_move(&self, destination: usize, player: &Resident) {
+    fn print_move(&self, destination: usize, position: usize) {
+        // todo: interactive position update
         let mut output = String::new();
 
         let total_floors = (self.num_rooms as f64 / self.rooms_per_story as f64).ceil() as usize;
@@ -222,7 +223,7 @@ impl Hotel {
                 } else {
                     let symbol = if idx == destination {
                         '+'
-                    } else if idx == player.current_position {
+                    } else if idx == position {
                         'x'
                     } else {
                         'E'
@@ -249,7 +250,6 @@ impl Hotel {
                 's' => format!("{:?}", resident.status),
                 'r' => format!("{}", resident.strategy.confess_role()),
                 't' => format!("{:?}", resident.resident_type),
-                'p' => format!("{}", resident.current_position),
                 _ => format!("{} {:-^width$}", param, "", width = APARTMENT_WIDTH),
             }
         } else {

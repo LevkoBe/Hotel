@@ -47,7 +47,6 @@ pub struct Resident {
     pub name: String,
     pub age: usize,
     pub account_balance: f64,
-    pub current_position: usize, // apartment
     pub apartment_number: usize,
     pub status: Status,
     pub super_status: SuperStatus,
@@ -61,7 +60,7 @@ impl Resident {
         name: String,
         age: usize,
         account_balance: f64,
-        current_position: usize,
+        apartment_number: usize,
         strategy: Arc<dyn ResidentStrategy>,
         resident_type: ResidentType,
     ) -> Resident {
@@ -71,8 +70,7 @@ impl Resident {
             name,
             age,
             account_balance,
-            current_position,
-            apartment_number: current_position,
+            apartment_number,
             status: Status::Alive,
             super_status: SuperStatus::None,
             resident_type,
@@ -122,7 +120,7 @@ impl Resident {
                 return;
             }
         }
-        hotel.apartments[self.current_position].read_mails();
+        hotel.apartments[self.apartment_number].read_mails();
         let is_human = self.resident_type == ResidentType::Human;
         self.strategy
             .perform_action(self.apartment_number, is_human, hotel, history);
@@ -213,7 +211,7 @@ impl ResidentFactory {
         name: String,
         age: usize,
         account_balance: f64,
-        current_position: usize,
+        apartment_number: usize,
         role: Role,
         resident_type: ResidentType,
     ) -> Resident {
@@ -233,7 +231,7 @@ impl ResidentFactory {
             name,
             age,
             account_balance,
-            current_position,
+            apartment_number,
             strategy,
             resident_type,
         )

@@ -5,6 +5,7 @@ pub struct Apartment {
     pub is_opened: bool,
     pub number: usize,
     pub floor: usize,
+    pub guests: Vec<usize>,
     pub resident: Option<Arc<Mutex<Resident>>>,
     pub mails: Vec<String>,
 }
@@ -15,6 +16,7 @@ impl Apartment {
             is_opened: true,
             number,
             floor,
+            guests: vec![],
             resident: None,
             mails: vec![],
         }

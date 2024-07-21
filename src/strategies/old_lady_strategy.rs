@@ -5,20 +5,12 @@ use rand::seq::SliceRandom;
 pub struct OldLadyStrategy;
 
 impl OldLadyStrategy {
-    fn gossip(&self, hotel: &mut hotel::Hotel, old_lady_apartment: usize, target: usize) {
+    fn pay_visit(&self, hotel: &mut hotel::Hotel, old_lady_apartment: usize, target: usize) {
         println!(
-            "Old Lady gossips about the resident in apartment {}",
+            "Old Lady pays a visit about the resident in apartment {}",
             target
         );
 
-        // Move to the target apartment and fall asleep
-        if let Some(apartment) = hotel.apartments.get_mut(old_lady_apartment) {
-            if let Some(resident) = &apartment.resident {
-                let mut resident = resident.lock().unwrap();
-                println!("Old Lady has tea and falls asleep in apartment {}", target);
-                resident.current_position = target;
-            }
-        }
         if let Some(apartment) = hotel.apartments.get_mut(target) {
             // Take a look at the documents of the resident
             if let Some(resident) = &apartment.resident {
@@ -28,6 +20,8 @@ impl OldLadyStrategy {
                     target
                 );
                 println!("{:?}", resident.documents);
+                println!("Old Lady has tea and falls asleep in apartment {}", target);
+                apartment.guests.push(old_lady_apartment);
             }
         }
     }
@@ -41,8 +35,8 @@ impl ResidentStrategy for OldLadyStrategy {
         history: &mut game_history::GameHistory,
     ) {
         let target = self.choose_target(old_lady_apartment, hotel);
-        self.gossip(hotel, old_lady_apartment, target);
-        history.add_action(old_lady_apartment, "Gossip".to_string(), target, None);
+        self.pay_visit(hotel, old_lady_apartment, target);
+        history.add_action(old_lady_apartment, "pay_visit".to_string(), target, None);
     }
 
     fn perform_action_bot(
@@ -55,8 +49,8 @@ impl ResidentStrategy for OldLadyStrategy {
             .get_ready_apartments(Some(old_lady_apartment))
             .choose(&mut rand::thread_rng())
         {
-            self.gossip(hotel, old_lady_apartment, *target);
-            history.add_action(old_lady_apartment, "Gossip".to_string(), *target, None);
+            self.pay_visit(hotel, old_lady_apartment, *target);
+            history.add_action(old_lady_apartment, "Pay visit".to_string(), *target, None);
         } else {
             println!("No available apartments to perform action");
             return;

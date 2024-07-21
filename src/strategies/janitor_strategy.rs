@@ -1,28 +1,12 @@
 use super::_strategy::ResidentStrategy;
-use crate::{game_history, hotel, resident::Resident, roles::Role};
+use crate::{game_history, hotel, roles::Role};
 use rand::seq::SliceRandom;
-use std::sync::{Arc, Mutex};
 
 pub struct JanitorStrategy;
 
 impl JanitorStrategy {
     fn clean(&self, hotel: &mut hotel::Hotel, target: usize) {
         println!("Janitor cleans the resident's apartment {}", target);
-
-        // Collect data before taking a mutable borrow
-        let residents_present: Vec<Arc<Mutex<Resident>>> = hotel
-            .get_all_residents()
-            .into_iter()
-            .filter(|resident| {
-                let resident = resident.lock().unwrap();
-                resident.current_position == target
-            })
-            .collect();
-        println!("Residents currently in apartment {}:", target);
-        for resident in &residents_present {
-            let resident = resident.lock().unwrap();
-            println!("{}", resident);
-        }
 
         if let Some(apartment) = hotel.apartments.get_mut(target) {
             // See the documents of the resident whose apartment_number is the target

@@ -132,6 +132,9 @@ impl GameFlow {
                 for resident in self.residents.iter() {
                     let mut resident = resident.lock().unwrap();
                     resident.update_state();
+                    self.hotel.apartments[resident.apartment_number]
+                        .guests
+                        .clear();
                 }
                 println!("It's day time!");
                 println!("{}", self.daily_announcement());

@@ -104,7 +104,6 @@ impl GameHistory {
             's' => format!("{:?}", resident.status),
             'r' => format!("{}", resident.strategy.confess_role()),
             't' => format!("{:?}", resident.resident_type),
-            'p' => format!("{}", resident.current_position),
             _ => param.to_string(),
         }
     }
