@@ -13,6 +13,7 @@
   - [Victory Conditions](#the-quest-for-victory)
 - [Design Patterns](#initial-design)
 - [Diagrams](#diagrams)
+- [Showcase](#showcase)
 
 ## *Introduction*
 
