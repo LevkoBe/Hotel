@@ -2,6 +2,18 @@
 
 **The Hotel: A Tale of Intrigue and Survival**
 
+**Navigation**
+- [Introduction](#introduction)
+- [Setup](#setting-up-the-hotel)
+- [Guest Management](#welcoming-guests)
+- [Navigation](#navigating-the-hotel)
+- [Game Mechanics](#embarking-on-the-game)
+  - [Rules](#the-rule-of-the-game)
+  - [Roles](#supported-roles)
+  - [Victory Conditions](#the-quest-for-victory)
+- [Design Patterns](#initial-design)
+- [Diagrams](#diagrams)
+
 ## *Introduction*
 
 Welcome to The Hotel, where luxury meets mystery and every guest becomes a player in a thrilling game of survival and strategy. In this documentation, we'll delve into the intricacies of The Hotel system, from its initial setup to the heart- pounding climax of The Game.
@@ -118,3 +130,10 @@ apartment configurations, and resident roles.
 #### State Diagram
 ![State](https://github.com/user-attachments/assets/638708ea-5239-4eaa-beb8-2bea0cb3f2bc)
 
+## Showcase
+
+### Configurable Hotel Display
+<img width="920" height="912" alt="image" src="https://github.com/user-attachments/assets/8efcf96b-4057-4719-8738-b4eb33f5245d" />
+
+### Auto-generated Player Documents
+<img width="805" height="908" alt="image" src="https://github.com/user-attachments/assets/07b61a1c-a24d-4db6-9733-cb551b5f3c7d" />
